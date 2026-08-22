@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -67,40 +67,40 @@ export default function PortfolioAnalyticsChart({
   }, [pageviews, sessions, codingData]);
 
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h3 className="text-sm font-semibold text-white">Tren Aktivitas</h3>
-        <div className="flex flex-wrap gap-2" aria-label="Series toggle">
+    <div className="flex flex-col h-full space-y-4 md:space-y-6 w-full max-w-full overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-xs md:text-sm font-semibold text-white">Tren Aktivitas</h3>
+        <div className="flex flex-wrap gap-1.5 md:gap-2" aria-label="Series toggle">
           <button
             onClick={() => setShowViews(!showViews)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showViews ? "bg-blue-500/10 border-blue-500/50 text-blue-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showViews ? "bg-blue-500/10 border-blue-500/50 text-blue-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
-            <div className={`w-2 h-2 rounded-full bg-blue-500 ${showViews ? "" : "opacity-40"}`} />
+            <div className={`w-1.5 h-1.5 rounded-full bg-blue-500 ${showViews ? "" : "opacity-40"}`} />
             Tayangan
           </button>
           <button
             onClick={() => setShowSessions(!showSessions)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showSessions ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showSessions ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
-            <div className={`w-2 h-2 rounded-full bg-emerald-500 ${showSessions ? "" : "opacity-40"}`} />
+            <div className={`w-1.5 h-1.5 rounded-full bg-emerald-500 ${showSessions ? "" : "opacity-40"}`} />
             Sesi
           </button>
           <button
             onClick={() => setShowCoding(!showCoding)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showCoding ? "bg-amber-500/10 border-amber-500/50 text-amber-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showCoding ? "bg-amber-500/10 border-amber-500/50 text-amber-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
-            <div className={`w-2 h-2 rounded-full bg-amber-500 ${showCoding ? "" : "opacity-40"}`} />
+            <div className={`w-1.5 h-1.5 rounded-full bg-amber-500 ${showCoding ? "" : "opacity-40"}`} />
             Coding
           </button>
         </div>
       </div>
 
-      <div className="w-full h-[320px] md:h-[360px]">
+      <div className="w-full min-w-0 h-[250px] md:h-[360px]">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
             <defs>
               <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={pageviewsColor} stopOpacity={0.1} />
@@ -121,7 +121,8 @@ export default function PortfolioAnalyticsChart({
               tickLine={false}
               axisLine={false}
               tick={{ fill: "#71717a", fontSize: 10, fontWeight: 600 }}
-              dy={10}
+              dy={6}
+              interval="preserveStartEnd"
             />
             <YAxis
               allowDecimals={false}
@@ -137,7 +138,7 @@ export default function PortfolioAnalyticsChart({
                 background: "#18181b",
                 color: "#fafafa"
               }}
-              itemStyle={{ fontSize: "12px", fontWeight: "bold" }}
+              itemStyle={{ fontSize: "11px", fontWeight: "bold" }}
             />
             {events?.map((ev, i) => (
               <ReferenceLine
@@ -153,7 +154,7 @@ export default function PortfolioAnalyticsChart({
                 type="monotone"
                 dataKey="pageviews"
                 stroke={pageviewsColor}
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#colorPv)"
                 isAnimationActive={true}
@@ -164,7 +165,7 @@ export default function PortfolioAnalyticsChart({
                 type="monotone"
                 dataKey="sessions"
                 stroke={sessionsColor}
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#colorSs)"
                 isAnimationActive={true}
@@ -175,7 +176,7 @@ export default function PortfolioAnalyticsChart({
                 type="monotone"
                 dataKey="codingTime"
                 stroke={codingColor}
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#colorCd)"
                 isAnimationActive={true}

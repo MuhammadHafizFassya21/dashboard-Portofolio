@@ -317,18 +317,10 @@ export default function DashboardPage() {
 
       <DashboardGrid>
         {/* ROW 1: HEADER SECTION (MATCHING TESLA STYLE) */}
-        <div className="lg:col-span-12 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div className="lg:col-span-12 flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2 w-full max-w-full">
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-              <span className="md:hidden flex items-center gap-3">
-                <img
-                  src="/hafiz21.jpeg"
-                  alt="Hafiz"
-                  className="w-10 h-10 rounded-full border-2 border-white/10 shadow-lg"
-                />
-                Hafiz Reports
-              </span>
-              <span className="hidden md:inline">Laporan</span>
+            <h2 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-3">
+              <span>Hafiz Dashboard</span>
             </h2>
             <div className="mt-1 flex items-center gap-2">
               <LiveStatus />
@@ -338,9 +330,9 @@ export default function DashboardPage() {
         </div>
 
         {/* ROW 2: PRIMARY GRID (LEFT KPIs + RIGHT CHART) */}
-        <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-5">
-          {/* LEFT: STACKED KPIs (Grid 2 cols on mobile) */}
-          <div className="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-5">
+        <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5 w-full max-w-full">
+          {/* LEFT: STACKED KPIs */}
+          <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4 lg:gap-5">
             <MetricCard label="Total Coding Time (All Time)" value={wakaAllTime?.digital ?? "—"} trend={`Avg: ${formatHours(wakaAllTime?.average_daily_seconds ?? 0)}/day`} />
             <MetricCard label="Pengunjung" value={visitors} trend="+12%" />
             <MetricCard label="Sesi" value={umami?.totals?.visits ?? 0} trend="+5%" />
@@ -349,7 +341,7 @@ export default function DashboardPage() {
 
           {/* RIGHT: LARGE CHART */}
           <DashboardCard id="traffic" title="Aktivitas" className="lg:col-span-3">
-            <div className="h-[430px]">
+            <div className="h-[260px] md:h-[430px] w-full">
               <PortfolioAnalyticsChart
                 pageviews={umami?.trend?.pageviews ?? []}
                 sessions={umami?.trend?.sessions ?? []}
