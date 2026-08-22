@@ -1,17 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { runGa4Report, normalizeRows } from '../../../lib/ga4';
 
-// Simple in-memory cache
-let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+const FALLBACK_SUMMARY = {
+    activeUsers: 0,
+    sessions: 0,
+    screenPageViews: 0,
+    averageSessionDuration: 0,
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'GET') return res.status(405).end();
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+
     try {
         const { range = '7D' } = req.query;
 
-        // Whitelist range mapping
         const dateRangeMap: Record<string, string> = {
             '7D': '7daysAgo',
             '30D': '30daysAgo',
@@ -21,25 +25,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const gaStartDate = dateRangeMap[range as string] || '7daysAgo';
 
-        // Check Cache
-        const cacheKey = `summary-${gaStartDate}`;
-        if (cache && (Date.now() - cache.timestamp < CACHE_DURATION)) {
-            return res.status(200).json(cache.data);
-        }
-
         const response = await runGa4Report({
             dateRange: gaStartDate,
             metrics: ['activeUsers', 'sessions', 'screenPageViews', 'averageSessionDuration'],
         });
 
-        const data = normalizeRows(response)[0] || {};
+        const data = normalizeRows(response)[0] || FALLBACK_SUMMARY;
 
-        // Update Cache
-        cache = { data, timestamp: Date.now() };
-
-        return res.status(200).json(data);
+        return res.status(200).json({
+            success: true,
+            source: "ga4",
+            ...data,
+            data,
+        });
     } catch (error: any) {
-        console.error('GA4 API Error:', error);
-        return res.status(500).json({ error: 'Failed to fetch GA4 data', detail: error.message });
+        console.error('GA4 API Error (Summary Fallback Used):', error.message || error);
+        return res.status(200).json({
+            success: false,
+            source: "ga4",
+            message: `Fallback data used: ${error.message || 'GA4 error'}`,
+            ...FALLBACK_SUMMARY,
+            data: FALLBACK_SUMMARY,
+        });
     }
 }

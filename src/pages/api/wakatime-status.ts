@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
 
 type WakaHeartbeat = {
     entity: string;
@@ -15,55 +16,66 @@ type WakaHeartbeat = {
     id: string;
 };
 
-const CACHE_TTL = 60 * 1000; // 1 minute
-let cachedData: any = null;
-let lastFetch = 0;
+const FALLBACK_STATUS = {
+    isCoding: false,
+    project: null,
+    language: null,
+    lastActive: null,
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405).end();
 
+    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
+
     const apiKey = process.env.WAKATIME_API_KEY;
     if (!apiKey) {
-        return res.status(500).json({ error: "Missing WAKATIME_API_KEY" });
-    }
-
-    if (cachedData && Date.now() - lastFetch < CACHE_TTL) {
-        return res.status(200).json(cachedData);
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-status",
+            message: "Missing WAKATIME_API_KEY",
+            ...FALLBACK_STATUS,
+            data: FALLBACK_STATUS,
+        });
     }
 
     try {
-        // Fetch heartbeats for today
-        const response = await fetch("https://wakatime.com/api/v1/users/current/heartbeats?date=today", {
-            headers: {
-                Authorization: `Basic ${Buffer.from(apiKey).toString("base64")}`,
+        const response = await fetchWithTimeout(
+            "https://wakatime.com/api/v1/users/current/heartbeats?date=today",
+            {
+                headers: {
+                    Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`,
+                },
             },
-        });
+            8000
+        );
 
         if (!response.ok) {
-            throw new Error(`WakaTime API error: ${response.status}`);
+            return res.status(200).json({
+                success: false,
+                source: "wakatime-status",
+                message: `WakaTime status returned ${response.status}`,
+                ...FALLBACK_STATUS,
+                data: FALLBACK_STATUS,
+            });
         }
 
         const json = await response.json();
         const heartbeats: WakaHeartbeat[] = json.data || [];
 
         if (heartbeats.length === 0) {
-            const out = {
-                isCoding: false,
-                project: null,
-                language: null,
-                lastActive: null,
-            };
-            cachedData = out;
-            lastFetch = Date.now();
-            return res.status(200).json(out);
+            return res.status(200).json({
+                success: true,
+                source: "wakatime-status",
+                ...FALLBACK_STATUS,
+                data: FALLBACK_STATUS,
+            });
         }
 
-        // Get the latest heartbeat
         const latest = heartbeats[heartbeats.length - 1];
         const now = Date.now() / 1000;
         const diff = now - latest.time;
 
-        // If the last heartbeat was within the last 15 minutes, consider as "Coding"
         const isCoding = diff < 15 * 60;
 
         const out = {
@@ -73,10 +85,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             lastActive: new Date(latest.time * 1000).toISOString(),
         };
 
-        cachedData = out;
-        lastFetch = Date.now();
-        return res.status(200).json(out);
+        return res.status(200).json({
+            success: true,
+            source: "wakatime-status",
+            ...out,
+            data: out,
+        });
     } catch (e: any) {
-        return res.status(500).json({ error: "Server error", detail: e.message });
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-status",
+            message: e.message || "Status fetch failed",
+            ...FALLBACK_STATUS,
+            data: FALLBACK_STATUS,
+        });
     }
 }

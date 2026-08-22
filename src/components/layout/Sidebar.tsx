@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { FileSpreadsheet } from "lucide-react";
 
 interface NavGroup {
     category: string;
@@ -108,8 +109,11 @@ export default function Sidebar({ items, isOpen, setIsOpen }: SidebarProps) {
                                                 : "text-zinc-400 hover:text-white hover:bg-white/5"
                                                 }`}
                                         >
-                                            {/* Icon Placeholder */}
-                                            <span className={`w-1.5 h-1.5 rounded-full ${activeHash === item.href ? "bg-white" : "bg-zinc-600 group-hover:bg-zinc-400"}`} />
+                                            {item.icon === "FileSpreadsheet" ? (
+                                                <FileSpreadsheet className="w-4 h-4" />
+                                            ) : (
+                                                <span className={`w-1.5 h-1.5 rounded-full ${activeHash === item.href ? "bg-white" : "bg-zinc-600 group-hover:bg-zinc-400"}`} />
+                                            )}
                                             <span className="text-sm font-medium tracking-wide">
                                                 {item.label}
                                             </span>

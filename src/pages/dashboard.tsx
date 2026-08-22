@@ -19,6 +19,7 @@ import ProjectsList from "../components/dashboard/ProjectsList";
 import LiveStatus from "../components/dashboard/LiveStatus";
 import RealTimeActivityCard from "../components/dashboard/RealTimeActivityCard";
 import ProductiveHourCard from "../components/dashboard/ProductiveHourCard";
+import ActivityReportTable from "../components/dashboard/ActivityReportTable";
 // import styles from "./dashboard.module.css";
 import { generateInsights, Insight } from "../lib/InsightEngine";
 
@@ -462,6 +463,11 @@ export default function DashboardPage() {
               <WeekdaysChart data={dailyData} />
             </div>
           </div>
+        </DashboardCard>
+
+        {/* ROW 6: REKAPAN AKTIVITAS TABEL & EXPORT */}
+        <DashboardCard id="rekapan-aktivitas" className="lg:col-span-12">
+          <ActivityReportTable />
         </DashboardCard>
       </DashboardGrid>
 

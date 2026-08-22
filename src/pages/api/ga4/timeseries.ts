@@ -4,6 +4,8 @@ import { runGa4Report, normalizeRows } from '../../../lib/ga4';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'GET') return res.status(405).end();
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+
     try {
         const { range = '7D' } = req.query;
 
@@ -22,10 +24,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             metrics: ['activeUsers', 'sessions'],
         });
 
-        const data = normalizeRows(response).sort((a: any, b: any) => a.date.localeCompare(b.date));
+        const data = normalizeRows(response).sort((a: any, b: any) => (a.date || '').localeCompare(b.date || ''));
 
         return res.status(200).json(data);
     } catch (error: any) {
-        return res.status(500).json({ error: 'Failed to fetch GA4 timeseries', detail: error.message });
+        console.error('GA4 API Error (Timeseries Fallback Used):', error.message || error);
+        return res.status(200).json([]);
     }
 }

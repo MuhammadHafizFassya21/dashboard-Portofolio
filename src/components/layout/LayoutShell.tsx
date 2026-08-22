@@ -12,9 +12,9 @@ const navItems = [
             { label: "Proyek", href: "#projects", icon: "LibraryIcon" },
             { label: "Kontribusi Harian", href: "#github", icon: "UsersIcon" },
             { label: "Catatan Coding", href: "#kpi-summary", icon: "ClipboardListIcon" },
+            { label: "Rekapan Aktivitas", href: "#rekapan-aktivitas", icon: "FileSpreadsheet" },
         ]
     },
-
 ];
 
 export default function LayoutShell({ children }: LayoutShellProps) {

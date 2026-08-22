@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
 
 type EditorData = {
     name: string;
@@ -8,47 +9,50 @@ type EditorData = {
     text: string;
 };
 
-type WakaTimeEditorsResponse = {
-    data: EditorData[];
-    total_seconds: number;
+const FALLBACK_EDITORS = {
+    data: [] as EditorData[],
+    total_seconds: 0,
 };
-
-const cache: Record<string, { data: any; timestamp: number }> = {};
-const CACHE_TTL = 10 * 60 * 1000;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405).end();
 
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+
     const apiKey = process.env.WAKATIME_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: "Missing WAKATIME_API_KEY" });
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-editors",
+            message: "Missing WAKATIME_API_KEY",
+            ...FALLBACK_EDITORS,
+        });
     }
 
     try {
         const { range } = req.query;
         const wakaRange = range === "30D" ? "last_30_days" : range === "90D" ? "last_6_months" : range === "all" ? "all_time" : "last_7_days";
 
-        const cacheKey = `editors-${wakaRange}`;
-        if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < CACHE_TTL) {
-            return res.status(200).json(cache[cacheKey].data);
-        }
-
         const auth = Buffer.from(`${apiKey}:`).toString("base64");
         const url = `https://wakatime.com/api/v1/users/current/stats/${wakaRange}`;
 
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Basic ${auth}`,
+        const response = await fetchWithTimeout(
+            url,
+            {
+                headers: {
+                    Authorization: `Basic ${auth}`,
+                },
             },
-        });
+            8000
+        );
 
         if (!response.ok) {
-            const detail = await response.text();
-            return res.status(response.status).json({
-                error: "WakaTime API failed",
-                status: response.status,
-                detail,
+            return res.status(200).json({
+                success: false,
+                source: "wakatime-editors",
+                message: `WakaTime API status ${response.status}`,
+                ...FALLBACK_EDITORS,
             });
         }
 
@@ -57,21 +61,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const totalSeconds = json.data?.total_seconds || 0;
 
         const editorsData: EditorData[] = rawEditors.map((ed: any) => ({
-            name: ed.name,
-            total_seconds: ed.total_seconds,
-            percent: ed.percent,
-            digital: ed.digital,
-            text: ed.text,
+            name: ed.name || "Unknown",
+            total_seconds: ed.total_seconds || 0,
+            percent: ed.percent || 0,
+            digital: ed.digital || "0s",
+            text: ed.text || "0s",
         }));
 
-        const result: WakaTimeEditorsResponse = {
+        return res.status(200).json({
+            success: true,
+            source: "wakatime-editors",
             data: editorsData,
             total_seconds: totalSeconds,
-        };
-
-        cache[cacheKey] = { data: result, timestamp: Date.now() };
-        return res.status(200).json(result);
-    } catch (e: unknown) {
-        return res.status(500).json({ error: "Server error", detail: String(e) });
+        });
+    } catch (e: any) {
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-editors",
+            message: e.message || "Fetch editors failed",
+            ...FALLBACK_EDITORS,
+        });
     }
 }

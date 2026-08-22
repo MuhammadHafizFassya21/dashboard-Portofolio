@@ -1,79 +1,86 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
 
-type WakaTimeAllTimeResponse = {
-    data: {
-        total_seconds: number;
-        text: string;
-        digital: string;
-        decimal: string;
-        is_up_to_date: boolean;
-        percent_calculated: number;
-        range: {
-            start_date: string;
-            start_text: string;
-            end_date: string;
-            end_text: string;
-        };
-        timeout: number;
-    };
+const FALLBACK_ALL_TIME = {
+    total_seconds: 0,
+    text: "0 secs",
+    digital: "0:00",
+    decimal: "0.00",
+    average_daily_seconds: 0,
+    start_date: new Date().toISOString().slice(0, 10),
 };
-
-const cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-
-let globalCache: { data: any; timestamp: number } | null = null;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") return res.status(405).end();
 
-    const apiKey = process.env.WAKATIME_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "Missing WAKATIME_API_KEY" });
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
 
-    // Simple in-memory cache
-    if (globalCache && Date.now() - globalCache.timestamp < CACHE_TTL) {
-        return res.status(200).json(globalCache.data);
+    const apiKey = process.env.WAKATIME_API_KEY;
+    if (!apiKey) {
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-all-time",
+            message: "Missing WAKATIME_API_KEY",
+            ...FALLBACK_ALL_TIME,
+            data: FALLBACK_ALL_TIME,
+        });
     }
 
     try {
         const url = "https://wakatime.com/api/v1/users/current/all_time_since_today";
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Basic ${Buffer.from(apiKey).toString("base64")}`,
+        const response = await fetchWithTimeout(
+            url,
+            {
+                headers: {
+                    Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`,
+                },
             },
-        });
+            8000
+        );
 
         if (!response.ok) {
-            const detail = await response.text();
-            return res.status(response.status).json({
-                error: "WakaTime API failed",
-                status: response.status,
-                detail,
+            return res.status(200).json({
+                success: false,
+                source: "wakatime-all-time",
+                message: `WakaTime API returned status ${response.status}`,
+                ...FALLBACK_ALL_TIME,
+                data: FALLBACK_ALL_TIME,
             });
         }
 
-        const json: WakaTimeAllTimeResponse = await response.json();
-        const data = json.data;
+        const json = await response.json();
+        const data = json.data || {};
 
-        // Calculate daily average
-        const startDate = new Date(data.range.start_date);
+        const total_seconds = data.total_seconds ?? 0;
+        const startDateStr = data.range?.start_date || new Date().toISOString().slice(0, 10);
+        const startDate = new Date(startDateStr);
         const today = new Date();
         const diffTime = Math.abs(today.getTime() - startDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
-        const averageDailySeconds = data.total_seconds / diffDays;
+        const averageDailySeconds = total_seconds / diffDays;
 
         const result = {
-            total_seconds: data.total_seconds,
-            text: data.text,
-            digital: data.digital,
-            decimal: data.decimal,
+            total_seconds,
+            text: data.text || "0 secs",
+            digital: data.digital || "0:00",
+            decimal: data.decimal || "0.00",
             average_daily_seconds: averageDailySeconds,
-            start_date: data.range.start_date,
+            start_date: startDateStr,
         };
 
-        globalCache = { data: result, timestamp: Date.now() };
-
-        return res.status(200).json(result);
-    } catch (e: unknown) {
-        return res.status(500).json({ error: "Server error", detail: String(e) });
+        return res.status(200).json({
+            success: true,
+            source: "wakatime-all-time",
+            ...result,
+            data: result,
+        });
+    } catch (e: any) {
+        return res.status(200).json({
+            success: false,
+            source: "wakatime-all-time",
+            message: e.message || "Fetch all time failed",
+            ...FALLBACK_ALL_TIME,
+            data: FALLBACK_ALL_TIME,
+        });
     }
 }

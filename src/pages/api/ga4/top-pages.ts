@@ -4,6 +4,8 @@ import { runGa4Report, normalizeRows } from '../../../lib/ga4';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'GET') return res.status(405).end();
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+
     try {
         const { range = '7D' } = req.query;
 
@@ -22,10 +24,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             metrics: ['screenPageViews', 'activeUsers'],
         });
 
-        const data = normalizeRows(response).sort((a: any, b: any) => b.screenPageViews - a.screenPageViews);
+        const data = normalizeRows(response).sort((a: any, b: any) => (b.screenPageViews || 0) - (a.screenPageViews || 0));
 
         return res.status(200).json(data);
     } catch (error: any) {
-        return res.status(500).json({ error: 'Failed to fetch GA4 top pages', detail: error.message });
+        console.error('GA4 API Error (Top Pages Fallback Used):', error.message || error);
+        return res.status(200).json([]);
     }
 }
