@@ -80,11 +80,8 @@ export default function Sidebar({ items, isOpen, setIsOpen }: SidebarProps) {
                 <div className="flex flex-col h-full p-6">
                     {/* Logo/Header */}
                     <div className="flex items-center gap-3 px-4 mb-12">
-                        <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-xl italic text-white shadow-lg shadow-blue-600/20">
-                            H
-                        </div>
                         <div className="font-display font-bold text-xl tracking-tight text-white">
-                            Hafiz <span className="text-zinc-500">Dash.</span>
+                            Hafiz <span className="text-zinc-500">Dashboard</span>
                         </div>
                     </div>
 
