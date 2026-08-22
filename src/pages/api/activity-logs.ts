@@ -6,6 +6,7 @@ export type ActivityLogItem = {
   codingTime: string;
   codingSeconds: number;
   mainLanguage: string;
+  projectName: string;
   commitsCount: number;
   views: number;
 };
@@ -25,7 +26,6 @@ function getDatesArray(startStr: string, endStr: string): string[] {
   curr.setUTCHours(0, 0, 0, 0);
   end.setUTCHours(0, 0, 0, 0);
 
-  // Safety check max 365 days
   let count = 0;
   while (curr <= end && count < 365) {
     dates.push(curr.toISOString().slice(0, 10));
@@ -49,12 +49,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const dateList = getDatesArray(startDate, endDate);
 
   // Initialize maps
-  const wakaMap = new Map<string, { seconds: number; mainLang: string }>();
+  const wakaMap = new Map<string, { seconds: number; mainLang: string; projectName: string }>();
   const githubMap = new Map<string, number>();
   const viewsMap = new Map<string, number>();
 
   dateList.forEach((d) => {
-    wakaMap.set(d, { seconds: 0, mainLang: "—" });
+    wakaMap.set(d, { seconds: 0, mainLang: "-", projectName: "-" });
     githubMap.set(d, 0);
     viewsMap.set(d, 0);
   });
@@ -87,8 +87,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const seconds = day?.grand_total?.total_seconds ?? 0;
             const languages = Array.isArray(day?.languages) ? day.languages : [];
             const sortedLangs = [...languages].sort((a, b) => (b.total_seconds || 0) - (a.total_seconds || 0));
-            const mainLang = sortedLangs[0]?.name ?? "—";
-            wakaMap.set(date, { seconds, mainLang });
+            const mainLang = sortedLangs[0]?.name ?? "-";
+
+            const projects = Array.isArray(day?.projects) ? day.projects : [];
+            const sortedProjects = [...projects].sort((a, b) => (b.total_seconds || 0) - (a.total_seconds || 0));
+            const projectName = sortedProjects[0]?.name ?? "-";
+
+            wakaMap.set(date, { seconds, mainLang, projectName });
           }
         }
       }
@@ -182,7 +187,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Construct combined response sorted descending by date
   const result: ActivityLogItem[] = dateList
     .map((date) => {
-      const waka = wakaMap.get(date) || { seconds: 0, mainLang: "—" };
+      const waka = wakaMap.get(date) || { seconds: 0, mainLang: "-", projectName: "-" };
       const commitsCount = githubMap.get(date) || 0;
       const views = viewsMap.get(date) || 0;
 
@@ -191,6 +196,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         codingTime: formatSecondsToDigital(waka.seconds),
         codingSeconds: waka.seconds,
         mainLanguage: waka.mainLang,
+        projectName: waka.projectName,
         commitsCount,
         views,
       };

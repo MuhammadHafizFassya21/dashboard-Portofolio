@@ -43,7 +43,8 @@ export default function ActivityReportTable() {
     const exportData = logs.map((item) => ({
       Tanggal: item.date,
       "Waktu Coding": item.codingTime,
-      "Bahasa Utama": item.mainLanguage,
+      "Proyek Utama": item.projectName || "-",
+      "Bahasa Utama": item.mainLanguage || "-",
       "Jumlah Commit": item.commitsCount,
       "Pengunjung / Views": item.views,
     }));
@@ -59,7 +60,8 @@ export default function ActivityReportTable() {
     const exportData = logs.map((item) => ({
       Tanggal: item.date,
       "Waktu Coding": item.codingTime,
-      "Bahasa Utama": item.mainLanguage,
+      "Proyek Utama": item.projectName || "-",
+      "Bahasa Utama": item.mainLanguage || "-",
       "Jumlah Commit": item.commitsCount,
       "Pengunjung / Views": item.views,
     }));
@@ -159,6 +161,7 @@ export default function ActivityReportTable() {
               <tr>
                 <th className="py-3.5 px-4">Tanggal</th>
                 <th className="py-3.5 px-4">Waktu Coding</th>
+                <th className="py-3.5 px-4">Proyek Utama</th>
                 <th className="py-3.5 px-4">Bahasa Utama</th>
                 <th className="py-3.5 px-4 text-center">Jumlah Commit</th>
                 <th className="py-3.5 px-4 text-right">Views / Sesi</th>
@@ -169,6 +172,15 @@ export default function ActivityReportTable() {
                 <tr key={row.date} className="hover:bg-white/[0.02] transition-colors duration-150">
                   <td className="py-3.5 px-4 font-mono font-bold text-white">{row.date}</td>
                   <td className="py-3.5 px-4 font-semibold text-blue-400">{row.codingTime}</td>
+                  <td className="py-3.5 px-4 font-medium text-zinc-200">
+                    {row.projectName && row.projectName !== "-" ? (
+                      <span className="bg-zinc-800 text-cyan-400 text-xs px-2.5 py-1 rounded-md border border-zinc-700">
+                        {row.projectName}
+                      </span>
+                    ) : (
+                      <span className="text-zinc-600">-</span>
+                    )}
+                  </td>
                   <td className="py-3.5 px-4">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-800 border border-white/5 text-zinc-200">
                       {row.mainLanguage}
