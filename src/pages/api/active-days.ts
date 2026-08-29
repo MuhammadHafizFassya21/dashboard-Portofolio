@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
+import { runGa4Report, normalizeRows } from "../../lib/ga4";
 
 function toISODate(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -231,6 +232,28 @@ export async function getActiveDaysFromUmami(start: Date, end: Date): Promise<nu
   return series.reduce((acc, p) => acc + (Number(p?.y) > 0 ? 1 : 0), 0);
 }
 
+export async function getActiveDaysFromGA4(range?: string | string[]): Promise<number> {
+  const dateRangeMap: Record<string, string> = {
+    '7D': '7daysAgo',
+    '30D': '30daysAgo',
+    '90D': '90daysAgo',
+    'all': '365daysAgo',
+  };
+  const gaStartDate = dateRangeMap[(range as string) || '7D'] || '7daysAgo';
+
+  try {
+    const res = await runGa4Report({
+      dateRange: gaStartDate,
+      dimensions: ['date'],
+      metrics: ['screenPageViews'],
+    });
+    const rows = normalizeRows(res);
+    return rows.reduce((acc: number, r: any) => acc + (Number(r.screenPageViews) > 0 ? 1 : 0), 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") return res.status(405).end();
 
@@ -262,21 +285,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     codingSource = wDays >= gDays ? "wakatime" : "github";
   }
 
-  let umamiDays: number | null = 0;
-  let umamiError: string | null = null;
+  let trafficDays: number = 0;
+  let trafficSource = "umami";
 
   try {
-    umamiDays = await getActiveDaysFromUmami(start, end);
+    trafficDays = await getActiveDaysFromUmami(start, end);
   } catch (e) {
-    umamiError = String(e);
-    umamiDays = 0;
+    trafficDays = 0;
+  }
+
+  if (trafficDays === 0) {
+    try {
+      trafficDays = await getActiveDaysFromGA4(range);
+      if (trafficDays > 0) trafficSource = "ga4";
+    } catch (e) {
+      trafficDays = 0;
+    }
   }
 
   const payload = {
     range: { start: toISODate(start), end: toISODate(end) },
     coding: { source: codingSource, activeDays: codingDays },
-    traffic: { source: "umami", activeDays: umamiDays },
-    debug: { wakatimeError, githubError, umamiError },
+    traffic: { source: trafficSource, activeDays: trafficDays },
+    debug: { wakatimeError, githubError },
   };
 
   return res.status(200).json({

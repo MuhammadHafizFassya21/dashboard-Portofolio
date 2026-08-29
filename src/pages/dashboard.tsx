@@ -13,7 +13,6 @@ import DashboardGrid from "../components/dashboard/DashboardGrid";
 import DashboardCard from "../components/dashboard/DashboardCard";
 import MetricCard from "../components/dashboard/MetricCard";
 import TimeRangeSelector from "../components/dashboard/TimeRangeSelector";
-import InsightList from "../components/dashboard/InsightList";
 import DailyStatsGrid from "../components/dashboard/DailyStatsGrid";
 import ProjectsList from "../components/dashboard/ProjectsList";
 import LiveStatus from "../components/dashboard/LiveStatus";
@@ -21,7 +20,6 @@ import RealTimeActivityCard from "../components/dashboard/RealTimeActivityCard";
 import ProductiveHourCard from "../components/dashboard/ProductiveHourCard";
 import ActivityReportTable from "../components/dashboard/ActivityReportTable";
 // import styles from "./dashboard.module.css";
-import { generateInsights, Insight } from "../lib/InsightEngine";
 
 type Point = { x: string; y: number };
 
@@ -151,6 +149,7 @@ export default function DashboardPage() {
   const [dailyData, setDailyData] = useState<WakaTimeDaily | null>(null);
   const [projectsData, setProjectsData] = useState<WakaTimeProjects | null>(null);
   const [gaSummary, setGaSummary] = useState<any>(null);
+  const [gaTimeseries, setGaTimeseries] = useState<any[]>([]);
 
 
   // Fetch all API data
@@ -181,6 +180,7 @@ export default function DashboardPage() {
     safeFetch<WakaTimeProjects>(`/api/wakatime-projects${query}`, (p) => setProjectsData(p));
     safeFetch<any>(`/api/wakatime-editors${query}`, (e) => setEditorsData(e));
     safeFetch<any>(`/api/ga4/summary${query}`, (g) => setGaSummary(g));
+    safeFetch<any>(`/api/ga4/timeseries${query}`, (gt) => setGaTimeseries(gt?.data || gt || []));
     safeFetch<WakaTimeAllTime>(`/api/wakatime-all-time`, (a) => setWakaAllTime(a));
   }, [timeRange]);
 
@@ -203,7 +203,8 @@ export default function DashboardPage() {
   }, [timeRange]);
 
   // DERIVED STATS
-  const visitors = umami?.totals?.visitors ?? 0;
+  const visitors = umami?.totals?.visitors ?? gaSummary?.activeUsers ?? gaSummary?.data?.activeUsers ?? 0;
+  const sessionsCount = umami?.totals?.visits ?? gaSummary?.sessions ?? gaSummary?.data?.sessions ?? 0;
   const bounceRatePct = Math.round((umami?.bounceRate ?? 0) * 100);
   const avgTimeSec = Math.round(umami?.avgTimeSeconds ?? 0);
   const codingTime7d = formatHours(wakaSummary?.total?.seconds ?? 0);
@@ -215,18 +216,13 @@ export default function DashboardPage() {
   // Removed InsightList in favor of RealTimeActivityCard
 
   // LOADING
-  if (!umami && activeDays === null && !wakaSummary) {
+  if (!umami && activeDays === null && !wakaSummary && !gaSummary) {
     return (
       <main className="min-h-screen bg-zinc-950 text-white selection:bg-blue-500/30 font-sans">
         <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/5 h-16 flex items-center px-6">
           <div className="flex items-center gap-4 w-full max-w-[1600px] mx-auto">
-            <img
-              src="/hafiz21.jpeg"
-              alt="Hafiz"
-              className="w-8 h-8 rounded-full border border-white/10 object-cover"
-            />
             <div>
-              <h1 className="text-sm font-bold tracking-tight text-white/90">Hafiz Reports</h1>
+              <h1 className="text-sm font-bold tracking-tight text-white/90">Hafiz Dashboard</h1>
               <div className="w-32 h-2 mt-1 rounded-full skeleton" />
             </div>
             <div className="ml-auto flex gap-2">
@@ -335,7 +331,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4 lg:gap-5">
             <MetricCard label="Total Coding Time (All Time)" value={wakaAllTime?.digital ?? "—"} trend={`Avg: ${formatHours(wakaAllTime?.average_daily_seconds ?? 0)}/day`} />
             <MetricCard label="Pengunjung" value={visitors} trend="+12%" />
-            <MetricCard label="Sesi" value={umami?.totals?.visits ?? 0} trend="+5%" />
+            <MetricCard label="Sesi" value={sessionsCount} trend="+5%" />
             <MetricCard label="Hari Coding" value={activeDays ?? 0} trend="+2" />
           </div>
 
@@ -343,8 +339,8 @@ export default function DashboardPage() {
           <DashboardCard id="traffic" title="Aktivitas" className="lg:col-span-3">
             <div className="h-[260px] md:h-[430px] w-full">
               <PortfolioAnalyticsChart
-                pageviews={umami?.trend?.pageviews ?? []}
-                sessions={umami?.trend?.sessions ?? []}
+                pageviews={(umami?.trend?.pageviews && umami.trend.pageviews.length > 0) ? umami.trend.pageviews : (Array.isArray(gaTimeseries) ? gaTimeseries.map(t => ({ x: t.date || t.x, y: t.pageviews || t.screenPageViews || 0 })) : [])}
+                sessions={(umami?.trend?.sessions && umami.trend.sessions.length > 0) ? umami.trend.sessions : (Array.isArray(gaTimeseries) ? gaTimeseries.map(t => ({ x: t.date || t.x, y: t.sessions || 0 })) : [])}
                 codingData={dailyData?.data?.map(d => ({ x: d.range?.date, y: d.grand_total?.total_seconds ?? 0 })) ?? []}
               />
             </div>

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
+import { runGa4Report, normalizeRows } from "../../lib/ga4";
 
 type UmamiStats = {
   pageviews: number;
@@ -29,11 +30,83 @@ function createFallbackResponse(startAt: number, endAt: number, message: string)
 
   return {
     success: false,
-    source: "umami",
+    source: "umami-fallback",
     message: `Fallback data used: ${message}`,
     ...payload,
     data: payload,
   };
+}
+
+async function fetchGa4Fallback(rangeStr: string, startAt: number, endAt: number) {
+  const dateRangeMap: Record<string, string> = {
+    '7D': '7daysAgo',
+    '30D': '30daysAgo',
+    '90D': '90daysAgo',
+    'all': '365daysAgo',
+  };
+  const gaStartDate = dateRangeMap[rangeStr] || '7daysAgo';
+
+  try {
+    const [summaryRes, timeseriesRes] = await Promise.all([
+      runGa4Report({
+        dateRange: gaStartDate,
+        metrics: ['activeUsers', 'sessions', 'screenPageViews', 'averageSessionDuration', 'bounceRate'],
+      }),
+      runGa4Report({
+        dateRange: gaStartDate,
+        dimensions: ['date'],
+        metrics: ['screenPageViews', 'sessions'],
+      }),
+    ]);
+
+    const summaryRow = normalizeRows(summaryRes)[0] || {};
+    const tsRows = normalizeRows(timeseriesRes).sort((a: any, b: any) => (a.date || '').localeCompare(b.date || ''));
+
+    const pageviews = summaryRow.screenPageViews || 0;
+    const visitors = summaryRow.activeUsers || 0;
+    const visits = summaryRow.sessions || 0;
+    const bounceRate = summaryRow.bounceRate || 0;
+    const avgTimeSeconds = summaryRow.averageSessionDuration || 0;
+    const totaltime = avgTimeSeconds * visits;
+
+    const pvTrend: { x: string; y: number }[] = [];
+    const ssTrend: { x: string; y: number }[] = [];
+
+    tsRows.forEach((row: any) => {
+      let dateStr = row.date || '';
+      if (dateStr.length === 8) {
+        dateStr = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
+      }
+      pvTrend.push({ x: dateStr, y: row.screenPageViews || 0 });
+      ssTrend.push({ x: dateStr, y: row.sessions || 0 });
+    });
+
+    const totals = {
+      pageviews,
+      visitors,
+      visits,
+      bounces: Math.round(bounceRate * visits),
+      totaltime,
+    };
+
+    const payload = {
+      range: { startAt, endAt },
+      totals,
+      bounceRate,
+      avgTimeSeconds,
+      trend: { pageviews: pvTrend, sessions: ssTrend },
+    };
+
+    return {
+      success: true,
+      source: "ga4-fallback",
+      ...payload,
+      data: payload,
+    };
+  } catch (err: any) {
+    console.error("GA4 Fallback Error:", err.message || err);
+    return createFallbackResponse(startAt, endAt, `GA4 Fallback error: ${err.message}`);
+  }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -42,7 +115,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
 
   const { range } = req.query;
-  const days = range === "30D" ? 30 : range === "90D" ? 90 : range === "all" ? 365 : 7;
+  const rangeStr = (range as string) || "7D";
+  const days = rangeStr === "30D" ? 30 : rangeStr === "90D" ? 90 : rangeStr === "all" ? 365 : 7;
 
   const endAt = Date.now();
   const startAt = endAt - days * 24 * 60 * 60 * 1000;
@@ -50,10 +124,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const apiKey = process.env.UMAMI_API_KEY;
   const websiteId = process.env.UMAMI_WEBSITE_ID;
 
+  // If Umami credentials missing, fallback directly to GA4
   if (!apiKey || !websiteId) {
-    return res.status(200).json(
-      createFallbackResponse(startAt, endAt, `Missing ${!apiKey ? "UMAMI_API_KEY" : "UMAMI_WEBSITE_ID"}`)
-    );
+    const ga4Data = await fetchGa4Fallback(rangeStr, startAt, endAt);
+    return res.status(200).json(ga4Data);
   }
 
   try {
@@ -69,9 +143,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ]);
 
     if (!statsRes.ok || !trendRes.ok) {
-      return res.status(200).json(
-        createFallbackResponse(startAt, endAt, "Umami API returned non-OK response status")
-      );
+      // Umami non-200 / 403 Forbidden -> fallback to GA4
+      const ga4Data = await fetchGa4Fallback(rangeStr, startAt, endAt);
+      return res.status(200).json(ga4Data);
     }
 
     const statsText = await statsRes.text();
@@ -115,8 +189,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: payload,
     });
   } catch (err: any) {
-    return res.status(200).json(
-      createFallbackResponse(startAt, endAt, err.message || "Unknown error")
-    );
+    const ga4Data = await fetchGa4Fallback(rangeStr, startAt, endAt);
+    return res.status(200).json(ga4Data);
   }
 }

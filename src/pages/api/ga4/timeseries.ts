@@ -21,14 +21,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const response = await runGa4Report({
             dateRange: gaStartDate,
             dimensions: ['date'],
-            metrics: ['activeUsers', 'sessions'],
+            metrics: ['screenPageViews', 'sessions', 'activeUsers'],
         });
 
-        const data = normalizeRows(response).sort((a: any, b: any) => (a.date || '').localeCompare(b.date || ''));
+        const rawData = normalizeRows(response).sort((a: any, b: any) => (a.date || '').localeCompare(b.date || ''));
 
-        return res.status(200).json(data);
+        const data = rawData.map((item: any) => {
+            let dateStr = item.date || '';
+            if (dateStr.length === 8) {
+                dateStr = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
+            }
+            return {
+                ...item,
+                date: dateStr,
+                x: dateStr,
+                pageviews: item.screenPageViews || 0,
+                sessions: item.sessions || 0,
+            };
+        });
+
+        return res.status(200).json({
+            success: true,
+            source: "ga4",
+            data,
+        });
     } catch (error: any) {
         console.error('GA4 API Error (Timeseries Fallback Used):', error.message || error);
-        return res.status(200).json([]);
+        return res.status(200).json({
+            success: false,
+            source: "ga4",
+            data: [],
+        });
     }
 }

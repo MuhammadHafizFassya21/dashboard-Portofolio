@@ -20,8 +20,9 @@ type Props = {
 };
 
 function formatShortDate(iso: string) {
+  if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+  return isNaN(d.getTime()) ? iso : d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
 }
 
 export default function PortfolioAnalyticsChart({
@@ -31,8 +32,8 @@ export default function PortfolioAnalyticsChart({
   events,
 }: Props) {
   const [showViews, setShowViews] = useState(true);
-  const [showSessions, setShowSessions] = useState(false);
-  const [showCoding, setShowCoding] = useState(false);
+  const [showSessions, setShowSessions] = useState(true);
+  const [showCoding, setShowCoding] = useState(true);
 
   const pageviewsColor = "#3b82f6"; // blue-500
   const sessionsColor = "#10b981"; // emerald-500
@@ -43,11 +44,18 @@ export default function PortfolioAnalyticsChart({
     const ssArr = Array.isArray(sessions) ? sessions : [];
     const cdArr = Array.isArray(codingData) ? codingData : [];
 
-    const normalizeDate = (d: string) => d?.split(' ')[0] || d;
+    const normalizeDate = (d: string) => {
+      if (!d) return "";
+      let s = d.split(" ")[0].split("T")[0];
+      if (s.length === 8 && !s.includes("-")) {
+        s = `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+      }
+      return s;
+    };
 
-    const pvMap = new Map(pvArr.map(p => [normalizeDate(p.x), p.y]));
-    const ssMap = new Map(ssArr.map(p => [normalizeDate(p.x), p.y]));
-    const cdMap = new Map(cdArr.map(p => [normalizeDate(p.x), p.y]));
+    const pvMap = new Map(pvArr.map(p => [normalizeDate(p.x), Number(p.y) || 0]));
+    const ssMap = new Map(ssArr.map(p => [normalizeDate(p.x), Number(p.y) || 0]));
+    const cdMap = new Map(cdArr.map(p => [normalizeDate(p.x), Number(p.y) || 0]));
 
     const dates = new Set([
       ...pvArr.map(p => normalizeDate(p.x)),
@@ -55,13 +63,16 @@ export default function PortfolioAnalyticsChart({
       ...cdArr.map(p => normalizeDate(p.x))
     ]);
 
+    // Remove empty string keys
+    dates.delete("");
+
     return Array.from(dates).sort().map(iso => {
       return {
         iso,
         date: iso ? formatShortDate(iso) : "",
         pageviews: pvMap.get(iso) ?? 0,
         sessions: ssMap.get(iso) ?? 0,
-        codingTime: cdMap.get(iso) ? Math.round((cdMap.get(iso) || 0) / 60) : 0, // minutes
+        codingTime: cdMap.get(iso) ? Math.round((cdMap.get(iso) || 0) / 60) : 0, // in minutes
       };
     });
   }, [pageviews, sessions, codingData]);
@@ -93,7 +104,7 @@ export default function PortfolioAnalyticsChart({
               }`}
           >
             <div className={`w-1.5 h-1.5 rounded-full bg-amber-500 ${showCoding ? "" : "opacity-40"}`} />
-            Coding
+            Coding (menit)
           </button>
         </div>
       </div>
@@ -103,15 +114,15 @@ export default function PortfolioAnalyticsChart({
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
             <defs>
               <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={pageviewsColor} stopOpacity={0.1} />
+                <stop offset="5%" stopColor={pageviewsColor} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={pageviewsColor} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorSs" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={sessionsColor} stopOpacity={0.1} />
+                <stop offset="5%" stopColor={sessionsColor} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={sessionsColor} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorCd" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={codingColor} stopOpacity={0.1} />
+                <stop offset="5%" stopColor={codingColor} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={codingColor} stopOpacity={0} />
               </linearGradient>
             </defs>

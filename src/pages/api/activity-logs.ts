@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
+import { runGa4Report, normalizeRows } from "../../lib/ga4";
 
 export type ActivityLogItem = {
   date: string;
@@ -157,6 +158,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // 3. Fetch Umami Views
+  let hasUmamiViews = false;
   if (umamiKey && umamiWebId) {
     try {
       const startAt = new Date(startDate).getTime();
@@ -175,10 +177,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         series.forEach((pt: any) => {
           if (pt?.x) {
             const dateStr = new Date(pt.x).toISOString().slice(0, 10);
-            viewsMap.set(dateStr, Number(pt.y) || 0);
+            const val = Number(pt.y) || 0;
+            if (val > 0) hasUmamiViews = true;
+            viewsMap.set(dateStr, val);
           }
         });
       }
+    } catch (e) {
+      // safe fallback
+    }
+  }
+
+  // 4. Fetch GA4 Views if Umami not available or had 0 views
+  if (!hasUmamiViews) {
+    try {
+      const response = await runGa4Report({
+        dateRange: startDate,
+        dimensions: ['date'],
+        metrics: ['screenPageViews'],
+      });
+      const rows = normalizeRows(response);
+      rows.forEach((row: any) => {
+        let dateStr = row.date || '';
+        if (dateStr.length === 8) {
+          dateStr = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
+        }
+        if (viewsMap.has(dateStr)) {
+          viewsMap.set(dateStr, row.screenPageViews || 0);
+        }
+      });
     } catch (e) {
       // safe fallback
     }
