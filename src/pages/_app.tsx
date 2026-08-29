@@ -2,12 +2,21 @@ import type { AppProps } from "next/app";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "@/styles/globals.css";
 import * as gtag from "@/lib/gtag";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  weight: ["500", "600", "700", "800", "900"],
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -17,7 +26,6 @@ export default function App({ Component, pageProps }: AppProps) {
       gtag.pageview(url);
     };
 
-    // Initial tracking on first load
     if (gtag.GA_MEASUREMENT_ID) {
       gtag.pageview(router.asPath);
     }
@@ -29,7 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router.events, router.asPath]);
 
   return (
-    <main className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <main className={`${plusJakarta.variable} ${outfit.variable} font-sans`}>
       {/* GA4 Setup */}
       {gtag.GA_MEASUREMENT_ID && (
         <>
