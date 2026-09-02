@@ -3,6 +3,25 @@ import * as XLSX from "xlsx";
 import { FileSpreadsheet, Download, Calendar, RefreshCw } from "lucide-react";
 import { ActivityLogItem } from "../../pages/api/activity-logs";
 
+function downloadFile(content: BlobPart, fileName: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  if (typeof window !== "undefined" && (window.navigator as any).msSaveOrOpenBlob) {
+    (window.navigator as any).msSaveOrOpenBlob(blob, fileName);
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+
 export default function ActivityReportTable() {
   const today = new Date().toISOString().slice(0, 10);
   const defaultStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -52,7 +71,12 @@ export default function ActivityReportTable() {
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Activity Logs");
-    XLSX.writeFile(workbook, `Aktivitas_Dev_${startDate}_sd_${endDate}.xlsx`);
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    downloadFile(
+      wbout,
+      `Aktivitas_Dev_${startDate}_sd_${endDate}.xlsx`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
   }
 
   function handleExportCSV() {
@@ -67,9 +91,13 @@ export default function ActivityReportTable() {
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Activity Logs");
-    XLSX.writeFile(workbook, `Aktivitas_Dev_${startDate}_sd_${endDate}.csv`, { bookType: "csv" });
+    const csvOutput = XLSX.utils.sheet_to_csv(worksheet);
+    const bomCsv = "\uFEFF" + csvOutput;
+    downloadFile(
+      bomCsv,
+      `Aktivitas_Dev_${startDate}_sd_${endDate}.csv`,
+      "text/csv;charset=utf-8;"
+    );
   }
 
   // Pagination calculation
@@ -113,6 +141,7 @@ export default function ActivityReportTable() {
               className="bg-transparent text-zinc-200 outline-none cursor-pointer text-xs min-w-0"
             />
             <button
+              type="button"
               onClick={fetchLogs}
               disabled={loading}
               className="p-1 text-zinc-400 hover:text-white transition disabled:opacity-50 sm:hidden shrink-0"
@@ -123,6 +152,7 @@ export default function ActivityReportTable() {
           </div>
 
           <button
+            type="button"
             onClick={fetchLogs}
             disabled={loading}
             className="hidden sm:flex p-2.5 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 rounded-xl transition duration-200 border border-white/5 disabled:opacity-50 shrink-0 items-center justify-center"
@@ -134,20 +164,22 @@ export default function ActivityReportTable() {
           {/* Export Buttons */}
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
+              type="button"
               onClick={handleExportExcel}
               disabled={logs.length === 0 || loading}
-              className="flex items-center justify-center gap-2 px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-medium text-xs rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-950/20 w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 active:scale-95 text-emerald-400 border border-emerald-500/30 font-semibold text-xs rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-950/20 w-full sm:w-auto cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-4 h-4 shrink-0" />
               <span>Export Excel</span>
             </button>
 
             <button
+              type="button"
               onClick={handleExportCSV}
               disabled={logs.length === 0 || loading}
-              className="flex items-center justify-center gap-2 px-3.5 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 font-medium text-xs rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-blue-950/20 w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-blue-600/20 hover:bg-blue-600/30 active:scale-95 text-blue-400 border border-blue-500/30 font-semibold text-xs rounded-xl transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-blue-950/20 w-full sm:w-auto cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-4 h-4 shrink-0" />
               <span>Export CSV</span>
             </button>
           </div>
@@ -225,6 +257,7 @@ export default function ActivityReportTable() {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
               className="px-2.5 py-1 bg-zinc-900 border border-white/5 rounded-lg hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -235,6 +268,7 @@ export default function ActivityReportTable() {
               {currentPage} / {totalPages}
             </span>
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="px-2.5 py-1 bg-zinc-900 border border-white/5 rounded-lg hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed"

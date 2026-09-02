@@ -63,7 +63,6 @@ export default function PortfolioAnalyticsChart({
       ...cdArr.map(p => normalizeDate(p.x))
     ]);
 
-    // Remove empty string keys
     dates.delete("");
 
     return Array.from(dates).sort().map(iso => {
@@ -78,29 +77,32 @@ export default function PortfolioAnalyticsChart({
   }, [pageviews, sessions, codingData]);
 
   return (
-    <div className="flex flex-col h-full space-y-4 md:space-y-6 w-full max-w-full overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex flex-col h-full space-y-3 md:space-y-6 w-full max-w-full overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
         <h3 className="text-xs md:text-sm font-semibold text-white">Tren Aktivitas</h3>
         <div className="flex flex-wrap gap-1.5 md:gap-2" aria-label="Series toggle">
           <button
+            type="button"
             onClick={() => setShowViews(!showViews)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showViews ? "bg-blue-500/10 border-blue-500/50 text-blue-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showViews ? "bg-blue-500/10 border-blue-500/50 text-blue-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
             <div className={`w-1.5 h-1.5 rounded-full bg-blue-500 ${showViews ? "" : "opacity-40"}`} />
             Tayangan
           </button>
           <button
+            type="button"
             onClick={() => setShowSessions(!showSessions)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showSessions ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showSessions ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
             <div className={`w-1.5 h-1.5 rounded-full bg-emerald-500 ${showSessions ? "" : "opacity-40"}`} />
             Sesi
           </button>
           <button
+            type="button"
             onClick={() => setShowCoding(!showCoding)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showCoding ? "bg-amber-500/10 border-amber-500/50 text-amber-400" : "bg-white/5 border-transparent text-zinc-500"
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-xl text-[10px] md:text-xs font-bold transition-all border ${showCoding ? "bg-amber-500/10 border-amber-500/50 text-amber-400" : "bg-white/5 border-transparent text-zinc-500"
               }`}
           >
             <div className={`w-1.5 h-1.5 rounded-full bg-amber-500 ${showCoding ? "" : "opacity-40"}`} />
@@ -109,9 +111,9 @@ export default function PortfolioAnalyticsChart({
         </div>
       </div>
 
-      <div className="w-full min-w-0 h-[250px] md:h-[360px]">
+      <div className="w-full min-w-0 h-[260px] sm:h-[300px] md:h-[360px]">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
             <defs>
               <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={pageviewsColor} stopOpacity={0.2} />
@@ -131,7 +133,7 @@ export default function PortfolioAnalyticsChart({
               dataKey="date"
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#71717a", fontSize: 10, fontWeight: 600 }}
+              tick={{ fill: "#71717a", fontSize: 9, fontWeight: 600 }}
               dy={6}
               interval="preserveStartEnd"
             />
@@ -139,7 +141,8 @@ export default function PortfolioAnalyticsChart({
               allowDecimals={false}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#71717a", fontSize: 10, fontWeight: 600 }}
+              width={30}
+              tick={{ fill: "#71717a", fontSize: 9, fontWeight: 600 }}
             />
             <Tooltip
               contentStyle={{

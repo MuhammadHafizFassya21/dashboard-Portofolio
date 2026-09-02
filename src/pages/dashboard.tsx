@@ -337,7 +337,7 @@ export default function DashboardPage() {
 
           {/* RIGHT: LARGE CHART */}
           <DashboardCard id="traffic" title="Aktivitas" className="lg:col-span-3">
-            <div className="h-[260px] md:h-[430px] w-full">
+            <div className="min-h-[340px] md:h-[430px] w-full">
               <PortfolioAnalyticsChart
                 pageviews={(umami?.trend?.pageviews && umami.trend.pageviews.length > 0) ? umami.trend.pageviews : (Array.isArray(gaTimeseries) ? gaTimeseries.map(t => ({ x: t.date || t.x, y: t.pageviews || t.screenPageViews || 0 })) : [])}
                 sessions={(umami?.trend?.sessions && umami.trend.sessions.length > 0) ? umami.trend.sessions : (Array.isArray(gaTimeseries) ? gaTimeseries.map(t => ({ x: t.date || t.x, y: t.sessions || 0 })) : [])}
