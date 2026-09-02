@@ -20,6 +20,8 @@ import RealTimeActivityCard from "../components/dashboard/RealTimeActivityCard";
 import ProductiveHourCard from "../components/dashboard/ProductiveHourCard";
 import ActivityReportTable from "../components/dashboard/ActivityReportTable";
 import ProjectHealthCard from "../components/dashboard/ProjectHealthCard";
+import GoalKpiCard from "../components/dashboard/GoalKpiCard";
+import RoadmapTilSection from "../components/dashboard/RoadmapTilSection";
 // import styles from "./dashboard.module.css";
 
 type Point = { x: string; y: number };
@@ -459,7 +461,15 @@ export default function DashboardPage() {
           <ProjectHealthCard />
         </DashboardCard>
 
-        {/* ROW 7: REKAPAN AKTIVITAS TABEL & EXPORT */}
+        {/* ROW 7: GOAL TRACKING KPI & ROADMAP MILSTONE HUB */}
+        <DashboardCard id="goals-roadmap" className="lg:col-span-12">
+          <div className="flex flex-col gap-6">
+            <GoalKpiCard />
+            <RoadmapTilSection />
+          </div>
+        </DashboardCard>
+
+        {/* ROW 8: REKAPAN AKTIVITAS TABEL & EXPORT */}
         <DashboardCard id="rekapan-aktivitas" className="lg:col-span-12">
           <ActivityReportTable />
         </DashboardCard>

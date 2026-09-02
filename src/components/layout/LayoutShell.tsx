@@ -14,6 +14,7 @@ const navItems = [
             { label: "Kontribusi Harian", href: "#github", icon: "UsersIcon" },
             { label: "Catatan Coding", href: "#kpi-summary", icon: "ClipboardListIcon" },
             { label: "Status & Pipeline", href: "#project-health", icon: "ActivityIcon" },
+            { label: "Roadmap & Target", href: "#goals-roadmap", icon: "TargetIcon" },
             { label: "Rekapan Aktivitas", href: "#rekapan-aktivitas", icon: "FileSpreadsheet" },
         ]
     },
