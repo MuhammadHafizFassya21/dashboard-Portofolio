@@ -19,6 +19,7 @@ import LiveStatus from "../components/dashboard/LiveStatus";
 import RealTimeActivityCard from "../components/dashboard/RealTimeActivityCard";
 import ProductiveHourCard from "../components/dashboard/ProductiveHourCard";
 import ActivityReportTable from "../components/dashboard/ActivityReportTable";
+import ProjectHealthCard from "../components/dashboard/ProjectHealthCard";
 // import styles from "./dashboard.module.css";
 
 type Point = { x: string; y: number };
@@ -453,7 +454,12 @@ export default function DashboardPage() {
           </div>
         </DashboardCard>
 
-        {/* ROW 6: REKAPAN AKTIVITAS TABEL & EXPORT */}
+        {/* ROW 6: SYSTEM & PIPELINE HEALTH MONITOR */}
+        <DashboardCard id="project-health" className="lg:col-span-12">
+          <ProjectHealthCard />
+        </DashboardCard>
+
+        {/* ROW 7: REKAPAN AKTIVITAS TABEL & EXPORT */}
         <DashboardCard id="rekapan-aktivitas" className="lg:col-span-12">
           <ActivityReportTable />
         </DashboardCard>
