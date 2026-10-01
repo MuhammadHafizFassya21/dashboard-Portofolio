@@ -194,7 +194,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const response = await runGa4Report({
         dateRange: startDate,
         dimensions: ['date'],
-        metrics: ['screenPageViews'],
+        metrics: ['screenPageViews', 'sessions'],
       });
       const rows = normalizeRows(response);
       rows.forEach((row: any) => {
@@ -203,7 +203,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           dateStr = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
         }
         if (viewsMap.has(dateStr)) {
-          viewsMap.set(dateStr, row.screenPageViews || 0);
+          const val = Math.max(Number(row.sessions) || 0, Number(row.screenPageViews) || 0);
+          viewsMap.set(dateStr, val);
         }
       });
     } catch (e) {

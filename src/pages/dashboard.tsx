@@ -216,6 +216,23 @@ export default function DashboardPage() {
   const pieData = topLanguages ? Object.entries(topLanguages).map(([name, bytes]) => ({ name, value: bytes })) : [];
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
+  // Dynamic sparklines & real trends
+  const codingSparkline = dailyData?.data?.map(d => d.grand_total?.total_seconds ?? 0) ?? [];
+  const visitorsSparkline = (umami?.trend?.pageviews && umami.trend.pageviews.length > 0)
+    ? umami.trend.pageviews.map(p => Number(p.y) || 0)
+    : (Array.isArray(gaTimeseries) && gaTimeseries.length > 0
+      ? gaTimeseries.map(t => Number(t.activeUsers || t.visitors || t.pageviews || 0))
+      : [0, 0, 0, 0, 1, 1, 0]);
+  const sessionsSparkline = (umami?.trend?.sessions && umami.trend.sessions.length > 0)
+    ? umami.trend.sessions.map(s => Number(s.y) || 0)
+    : (Array.isArray(gaTimeseries) && gaTimeseries.length > 0
+      ? gaTimeseries.map(t => Number(t.sessions || 0))
+      : [0, 0, 0, 0, 1, 1, 0]);
+  const activeDaysSparkline = dailyData?.data?.map(d => ((d.grand_total?.total_seconds ?? 0) > 0 ? 1 : 0)) ?? [];
+
+  const computedActiveDays = dailyData?.data?.filter(d => (d.grand_total?.total_seconds ?? 0) > 0).length ?? 0;
+  const resolvedActiveDays = (activeDays !== null && activeDays > 0) ? activeDays : computedActiveDays;
+
   // Removed InsightList in favor of RealTimeActivityCard
 
   // LOADING
@@ -332,10 +349,34 @@ export default function DashboardPage() {
         <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5 w-full max-w-full">
           {/* LEFT: STACKED KPIs */}
           <div className="lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4 lg:gap-5">
-            <MetricCard label="Total Coding Time (All Time)" value={wakaAllTime?.digital ?? "—"} trend={`Avg: ${formatHours(wakaAllTime?.average_daily_seconds ?? 0)}/day`} />
-            <MetricCard label="Pengunjung" value={visitors} trend="+12%" />
-            <MetricCard label="Sesi" value={sessionsCount} trend="+5%" />
-            <MetricCard label="Hari Coding" value={activeDays ?? 0} trend="+2" />
+            <MetricCard
+              label="Total Coding Time (All Time)"
+              value={wakaAllTime?.digital ?? "—"}
+              trend={`Avg: ${formatHours(wakaAllTime?.average_daily_seconds ?? 0)}/hari kalender`}
+              sparklineData={codingSparkline}
+              color="blue"
+            />
+            <MetricCard
+              label="Pengunjung"
+              value={visitors}
+              trend={visitors > 0 ? `+${visitors} aktif` : undefined}
+              sparklineData={visitorsSparkline}
+              color="emerald"
+            />
+            <MetricCard
+              label="Sesi"
+              value={sessionsCount}
+              trend={sessionsCount > 0 ? `+${sessionsCount} sesi` : undefined}
+              sparklineData={sessionsSparkline}
+              color="amber"
+            />
+            <MetricCard
+              label="Hari Coding"
+              value={resolvedActiveDays}
+              trend={`${resolvedActiveDays}/7 hari`}
+              sparklineData={activeDaysSparkline}
+              color="purple"
+            />
           </div>
 
           {/* RIGHT: LARGE CHART */}
@@ -446,7 +487,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-12">
             <WeeklySummary
               totalSeconds={timeRange === "all" && wakaAllTime ? wakaAllTime.total_seconds : (wakaSummary?.total?.seconds ?? 0)}
-              activeDays={activeDays ?? 0}
+              activeDays={resolvedActiveDays}
               isAllTime={timeRange === "all"}
               averageDailySeconds={wakaAllTime?.average_daily_seconds}
             />

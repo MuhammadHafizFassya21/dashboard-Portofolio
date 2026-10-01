@@ -51,13 +51,13 @@ type GitHubGraphQLResponse = {
 
 function getRangeFromQuery(range?: string | string[]) {
   const todayUTC = startOfDayUTC(new Date());
-  const end = addDaysUTC(todayUTC, -1);
-  let start = addDaysUTC(todayUTC, -7);
+  const end = todayUTC;
+  let start = addDaysUTC(todayUTC, -6);
 
   if (range === "30D") {
-    start = addDaysUTC(todayUTC, -30);
+    start = addDaysUTC(todayUTC, -29);
   } else if (range === "90D") {
-    start = addDaysUTC(todayUTC, -90);
+    start = addDaysUTC(todayUTC, -89);
   } else if (range === "all") {
     start = new Date("2000-01-01");
   }
@@ -70,14 +70,8 @@ async function getActiveDaysFromWakaTime(range?: string | string[]): Promise<num
   if (!apiKey) return 0;
 
   const auth = Buffer.from(`${apiKey}:`).toString("base64");
-  const { start, end } = getRangeFromQuery(range);
-
-  let url = "";
-  if (range === "all") {
-    url = `https://wakatime.com/api/v1/users/current/summaries?range=all_time`;
-  } else {
-    url = `https://wakatime.com/api/v1/users/current/summaries?start=${toISODate(start)}&end=${toISODate(end)}`;
-  }
+  const wakaRange = range === "30D" ? "last_30_days" : range === "90D" ? "last_6_months" : range === "all" ? "all_time" : "last_7_days";
+  const url = `https://wakatime.com/api/v1/users/current/summaries?range=${wakaRange}`;
 
   const r = await fetchWithTimeout(url, { headers: { Authorization: `Basic ${auth}` } }, 8000);
   if (!r.ok) return 0;
@@ -245,10 +239,10 @@ export async function getActiveDaysFromGA4(range?: string | string[]): Promise<n
     const res = await runGa4Report({
       dateRange: gaStartDate,
       dimensions: ['date'],
-      metrics: ['screenPageViews'],
+      metrics: ['screenPageViews', 'sessions'],
     });
     const rows = normalizeRows(res);
-    return rows.reduce((acc: number, r: any) => acc + (Number(r.screenPageViews) > 0 ? 1 : 0), 0);
+    return rows.reduce((acc: number, r: any) => acc + (Math.max(Number(r.screenPageViews) || 0, Number(r.sessions) || 0) > 0 ? 1 : 0), 0);
   } catch (e) {
     return 0;
   }

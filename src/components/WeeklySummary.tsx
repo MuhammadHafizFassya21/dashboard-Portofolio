@@ -138,13 +138,23 @@ export default function WeeklySummary({
                             <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                         </svg>
                     </div>
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest group-hover:text-blue-400/80 transition-colors">Rata-rata/Hari</div>
+                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest group-hover:text-blue-400/80 transition-colors">
+                        Rata-rata/Hari (Kalender)
+                    </div>
                     <div className="text-5xl font-black text-white tracking-tighter leading-none group-hover:text-blue-400 transition-colors">
                         {formatHours(isAllTime && averageDailySeconds ? averageDailySeconds : Math.round(totalSeconds / 7))}
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/5 bg-white/5 text-zinc-500 text-[10px] font-bold w-fit">
-                        <span>→</span>
-                        <span>Daily Average</span>
+                    <div className="flex flex-col gap-1.5 pt-1">
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-white/5 bg-white/5 text-zinc-400 text-[10px] font-bold w-fit">
+                            <span>📅</span>
+                            <span>{isAllTime ? "Rata-rata seluruh hari" : "Basis 7 hari kalender"}</span>
+                        </div>
+                        {!isAllTime && activeDays > 0 && (
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/20 bg-blue-500/10 text-blue-400 text-[10px] font-bold w-fit">
+                                <span>⚡</span>
+                                <span>{formatHours(Math.round(totalSeconds / activeDays))} / hari aktif ({activeDays} hari)</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

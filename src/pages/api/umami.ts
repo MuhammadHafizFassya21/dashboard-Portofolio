@@ -62,7 +62,7 @@ async function fetchGa4Fallback(rangeStr: string, startAt: number, endAt: number
     const summaryRow = normalizeRows(summaryRes)[0] || {};
     const tsRows = normalizeRows(timeseriesRes).sort((a: any, b: any) => (a.date || '').localeCompare(b.date || ''));
 
-    const pageviews = summaryRow.screenPageViews || 0;
+    const pageviews = summaryRow.screenPageViews || summaryRow.sessions || 0;
     const visitors = summaryRow.activeUsers || 0;
     const visits = summaryRow.sessions || 0;
     const bounceRate = summaryRow.bounceRate || 0;
@@ -77,7 +77,7 @@ async function fetchGa4Fallback(rangeStr: string, startAt: number, endAt: number
       if (dateStr.length === 8) {
         dateStr = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
       }
-      pvTrend.push({ x: dateStr, y: row.screenPageViews || 0 });
+      pvTrend.push({ x: dateStr, y: row.screenPageViews || row.sessions || 0 });
       ssTrend.push({ x: dateStr, y: row.sessions || 0 });
     });
 

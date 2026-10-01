@@ -35,8 +35,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...item,
                 date: dateStr,
                 x: dateStr,
-                pageviews: item.screenPageViews || 0,
+                pageviews: item.screenPageViews || item.sessions || 0,
                 sessions: item.sessions || 0,
+                activeUsers: item.activeUsers || 0,
             };
         });
 

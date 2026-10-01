@@ -82,14 +82,14 @@ export default function DailyActivityGauge({
                 </div>
             </div>
 
-            <div className="mt-4 flex flex-col items-center gap-1 w-full border-t border-white/5 pt-6">
+            <div className="mt-4 flex flex-col items-center gap-1.5 w-full border-t border-white/5 pt-6">
                 <div className="flex items-center justify-center gap-2">
                     <span className="text-sm font-black text-white">{formatDuration(dailyAverageSeconds)}</span>
-                    <span className="text-xs font-bold text-zinc-500">Daily Average</span>
+                    <span className="text-xs font-bold text-zinc-500">Rata-rata Harian (Kalender)</span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                     <span className="text-sm font-black text-white">{formatDate(bestDayDate)}</span>
-                    <span className="text-xs font-bold text-zinc-500">Most Active Day</span>
+                    <span className="text-xs font-bold text-zinc-500">Hari Teraktif</span>
                 </div>
             </div>
         </div>
