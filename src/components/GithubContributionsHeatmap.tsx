@@ -26,7 +26,7 @@ export default function GithubContributionsHeatmap({
             {totalContributions}
           </span>
           <span className="text-[9px] md:text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-1.5">
-            Total Year
+            Total Contributions
           </span>
         </div>
       </div>
