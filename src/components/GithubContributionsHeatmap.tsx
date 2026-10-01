@@ -208,7 +208,9 @@ export default function GithubContributionsHeatmap({
 
         <div className="relative overflow-hidden rounded-xl w-full max-w-full">
           <div
-            className={`flex gap-[1.5px] min-[380px]:gap-[2px] sm:gap-[3px] md:gap-[5px] w-full justify-between items-center overflow-x-hidden md:overflow-x-auto pb-2 md:pb-4 ${styles.grid}`}
+            className={`flex gap-[1.5px] min-[380px]:gap-[2px] sm:gap-[3px] md:gap-[5px] w-full ${
+              weeks.length >= 50 ? "justify-between" : "justify-start gap-2"
+            } items-start overflow-x-auto pb-2 md:pb-4 ${styles.grid}`}
           >
             {weeks.map((w, wi) => (
               <div key={wi} className={styles.week}>

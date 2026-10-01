@@ -22,6 +22,7 @@ import ActivityReportTable from "../components/dashboard/ActivityReportTable";
 import ProjectHealthCard from "../components/dashboard/ProjectHealthCard";
 import GoalKpiCard from "../components/dashboard/GoalKpiCard";
 import RoadmapTilSection from "../components/dashboard/RoadmapTilSection";
+import RecentActivitySection from "../components/dashboard/RecentActivitySection";
 // import styles from "./dashboard.module.css";
 
 type Point = { x: string; y: number };
@@ -518,7 +519,10 @@ export default function DashboardPage() {
           </div>
         </DashboardCard>
 
-        {/* ROW 6: SYSTEM & PIPELINE HEALTH MONITOR */}
+        {/* ROW 6: RECENT ACTIVITY FEED */}
+        <RecentActivitySection className="lg:col-span-12" />
+
+        {/* ROW 7: SYSTEM & PIPELINE HEALTH MONITOR */}
         <DashboardCard id="project-health" className="lg:col-span-12">
           <ProjectHealthCard />
         </DashboardCard>

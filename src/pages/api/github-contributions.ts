@@ -242,21 +242,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json(payload);
     }
 
-    // Date-based range
-    const to = new Date();
-    const from = new Date();
-    if (range === "7D") {
-      from.setDate(to.getDate() - 7);
-    } else if (range === "30D") {
-      from.setDate(to.getDate() - 30);
-    } else if (range === "90D") {
-      from.setDate(to.getDate() - 90);
-    } else {
-      from.setDate(to.getDate() - 365);
-    }
-
+    // Rolling 1-year (53 weeks) calendar & metrics
+    // The calendar is always 53 weeks to preserve the full contribution heatmap graph
     const query = `
-      query($login: String!, $from: DateTime!, $to: DateTime!) {
+      query($login: String!) {
         user(login: $login) {
           repositories(first: 100, ownerAffiliations: [OWNER]) {
             totalCount
@@ -265,7 +254,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               primaryLanguage { name color }
             }
           }
-          contributionsCollection(from: $from, to: $to) {
+          contributionsCollection {
             totalCommitContributions
             totalIssueContributions
             totalPullRequestContributions
@@ -300,7 +289,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         headers,
         body: JSON.stringify({
           query,
-          variables: { login: username, from: from.toISOString(), to: to.toISOString() },
+          variables: { login: username },
         }),
       },
       8000
