@@ -59,6 +59,21 @@ type WakaTimeSummary = {
 
 type GithubCalendar = {
   totalContributions: number;
+  totalCommits?: number;
+  totalRepositories?: number;
+  totalPullRequests?: number;
+  totalIssues?: number;
+  mostActiveRepo?: {
+    name: string;
+    contributions: number;
+    language?: string;
+    color?: string;
+  } | null;
+  mostActiveLanguage?: {
+    name: string;
+    count: number;
+    color?: string;
+  } | null;
   weeks: {
     contributionDays: {
       date: string;
@@ -396,6 +411,12 @@ export default function DashboardPage() {
           {gh ? (
             <GithubContributionsHeatmap
               totalContributions={gh.totalContributions}
+              totalCommits={gh.totalCommits}
+              totalRepositories={gh.totalRepositories}
+              totalPullRequests={gh.totalPullRequests}
+              totalIssues={gh.totalIssues}
+              mostActiveRepo={gh.mostActiveRepo}
+              mostActiveLanguage={gh.mostActiveLanguage}
               weeks={gh.weeks}
             />
           ) : (
