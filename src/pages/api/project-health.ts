@@ -63,7 +63,7 @@ async function checkServiceHealth(name: string, url: string, timeoutMs = 4000): 
 async function getLatestGithubDeployment(): Promise<DeploymentStatus> {
   const token = process.env.GITHUB_TOKEN;
   const username = process.env.GITHUB_USERNAME || "MuhammadHafizFassya21";
-  const repo = process.env.GITHUB_REPO || "dashboard-Portofolio";
+  const explicitRepo = process.env.GITHUB_REPO;
 
   const fallback: DeploymentStatus = {
     commitMessage: "System operational - initial build",
@@ -80,7 +80,32 @@ async function getLatestGithubDeployment(): Promise<DeploymentStatus> {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const commitsUrl = `https://api.github.com/repos/${username}/${repo}/commits?per_page=1`;
+    let targetRepo = explicitRepo;
+
+    // Automatically detect the most recently pushed non-fork repository
+    if (!targetRepo) {
+      try {
+        const reposUrl = `https://api.github.com/users/${username}/repos?sort=pushed&direction=desc&per_page=10`;
+        const reposRes = await fetch(reposUrl, { headers });
+        if (reposRes.ok) {
+          const reposData = await reposRes.json();
+          if (Array.isArray(reposData)) {
+            const userRepos = reposData.filter(
+              (r: any) => r.owner?.login === username && !r.fork
+            );
+            if (userRepos.length > 0) {
+              targetRepo = userRepos[0].name;
+            }
+          }
+        }
+      } catch {
+        // fallback to default
+      }
+    }
+
+    targetRepo = targetRepo || "dashboard-Portofolio";
+
+    const commitsUrl = `https://api.github.com/repos/${username}/${targetRepo}/commits?per_page=1`;
     const commitsRes = await fetch(commitsUrl, { headers });
 
     if (!commitsRes.ok) {
@@ -102,7 +127,7 @@ async function getLatestGithubDeployment(): Promise<DeploymentStatus> {
     let status: "success" | "failure" | "in_progress" | "queued" = "success";
 
     if (commitSha) {
-      const checkRunsUrl = `https://api.github.com/repos/${username}/${repo}/commits/${commitSha}/check-runs`;
+      const checkRunsUrl = `https://api.github.com/repos/${username}/${targetRepo}/commits/${commitSha}/check-runs`;
       const checkRes = await fetch(checkRunsUrl, { headers });
       if (checkRes.ok) {
         const checkData = await checkRes.json();
