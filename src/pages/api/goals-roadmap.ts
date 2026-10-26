@@ -1,24 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fetchWithTimeout } from "../../lib/fetchWithTimeout";
 
-export type Milestone = {
-  id: string;
-  title: string;
-  category: "Academic / ML" | "Portfolio" | "Data Engineering" | "System Architecture";
-  startDate: string;
-  endDate: string;
-  progress: number;
-  status: "completed" | "in_progress" | "planned";
-};
-
-export type TilLog = {
-  id: string;
-  date: string;
-  title: string;
-  content: string;
-  tags: string[];
-};
-
 export type LanguageTarget = {
   name: string;
   targetPercent: number;
@@ -35,63 +17,7 @@ export type GoalsRoadmapResponse = {
     streakDays: number;
     languageDistribution: LanguageTarget[];
   };
-  milestones: Milestone[];
-  tilLogs: TilLog[];
 };
-
-const DEFAULT_MILESTONES: Milestone[] = [
-  {
-    id: "m1",
-    title: "RUTILAHU DSS Decision System",
-    category: "Academic / ML",
-    startDate: "2026-08-15",
-    endDate: "2026-09-15",
-    progress: 85,
-    status: "in_progress",
-  },
-  {
-    id: "m2",
-    title: "Dev Dashboard v2 Refactor",
-    category: "Portfolio",
-    startDate: "2026-08-25",
-    endDate: "2026-09-05",
-    progress: 95,
-    status: "in_progress",
-  },
-  {
-    id: "m3",
-    title: "E-Commerce Data Warehouse Pipeline",
-    category: "Data Engineering",
-    startDate: "2026-09-10",
-    endDate: "2026-10-01",
-    progress: 35,
-    status: "planned",
-  },
-];
-
-const DEFAULT_TIL_LOGS: TilLog[] = [
-  {
-    id: "t1",
-    date: "2026-09-02",
-    title: "SWR Edge Caching in Next.js",
-    content: "Menggunakan stale-while-revalidate untuk mempercepat response time serverless route dan mengurangi request eksternal.",
-    tags: ["Next.js", "Performance", "API"],
-  },
-  {
-    id: "t2",
-    date: "2026-09-01",
-    title: "BigQuery Partitioning & Clustering",
-    content: "Optimasi biaya query dengan membagi tabel berdasarkan tanggal dan meng-cluster kolom user_id.",
-    tags: ["BigQuery", "SQL", "Data Engineering"],
-  },
-  {
-    id: "t3",
-    date: "2026-08-30",
-    title: "Recharts Responsive Scaling di Viewport Mobile",
-    content: "Mengatur minWidth={0} dan margin minus agar area SVG chart tidak terpotong di layar smartphone 320px.",
-    tags: ["React", "UI/UX", "Tailwind"],
-  },
-];
 
 export default async function handler(
   req: NextApiRequest,
@@ -208,7 +134,5 @@ export default async function handler(
       streakDays,
       languageDistribution,
     },
-    milestones: DEFAULT_MILESTONES,
-    tilLogs: DEFAULT_TIL_LOGS,
   });
 }

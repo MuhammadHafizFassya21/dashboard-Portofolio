@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Target, Award, Code2 } from "lucide-react";
 import { GoalsRoadmapResponse } from "../../pages/api/goals-roadmap";
 
-export default function GoalKpiCard() {
+export default function GoalKpiCard({ className = "" }: { className?: string }) {
   const [data, setData] = useState<GoalsRoadmapResponse | null>(null);
 
   async function fetchData() {
@@ -30,7 +30,7 @@ export default function GoalKpiCard() {
   };
 
   return (
-    <div className="flex flex-col p-4 sm:p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 bg-gradient-to-br from-zinc-900/60 to-zinc-900/20 backdrop-blur-2xl shadow-2xl transition-all duration-300 w-full max-w-full overflow-hidden">
+    <div className={`flex flex-col p-4 sm:p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 bg-gradient-to-br from-zinc-900/60 to-zinc-900/20 backdrop-blur-2xl shadow-2xl transition-all duration-300 w-full max-w-full overflow-hidden ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-6 pb-5 border-b border-white/5">
         <div className="flex items-center gap-3">

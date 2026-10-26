@@ -15,8 +15,7 @@ const navItems = [
             { label: "Catatan Coding", href: "#kpi-summary", icon: "ClipboardListIcon" },
             { label: "Aktivitas Terkini", href: "#recent-activity", icon: "ClockIcon" },
             { label: "Status & Pipeline", href: "#project-health", icon: "ActivityIcon" },
-            { label: "Roadmap & Target", href: "#goals-roadmap", icon: "TargetIcon" },
-            { label: "Rekapan Aktivitas", href: "#rekapan-aktivitas", icon: "FileSpreadsheet" },
+            { label: "Rekapan Aktivitas", href: "#all-time-records", icon: "FileSpreadsheet" },
         ]
     },
 ];

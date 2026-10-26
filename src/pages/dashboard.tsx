@@ -18,11 +18,10 @@ import ProjectsList from "../components/dashboard/ProjectsList";
 import LiveStatus from "../components/dashboard/LiveStatus";
 import RealTimeActivityCard from "../components/dashboard/RealTimeActivityCard";
 import ProductiveHourCard from "../components/dashboard/ProductiveHourCard";
-import ActivityReportTable from "../components/dashboard/ActivityReportTable";
 import ProjectHealthCard from "../components/dashboard/ProjectHealthCard";
 import GoalKpiCard from "../components/dashboard/GoalKpiCard";
-import RoadmapTilSection from "../components/dashboard/RoadmapTilSection";
 import RecentActivitySection from "../components/dashboard/RecentActivitySection";
+import AllTimeActivityLog from "../components/dashboard/AllTimeActivityLog";
 // import styles from "./dashboard.module.css";
 
 type Point = { x: string; y: number };
@@ -527,18 +526,11 @@ export default function DashboardPage() {
           <ProjectHealthCard />
         </DashboardCard>
 
-        {/* ROW 7: GOAL TRACKING KPI & ROADMAP MILSTONE HUB */}
-        <DashboardCard id="goals-roadmap" className="lg:col-span-12">
-          <div className="flex flex-col gap-6">
-            <GoalKpiCard />
-            <RoadmapTilSection />
-          </div>
-        </DashboardCard>
+        {/* ROW 7: TARGET VS ALOKASI BAHASA AKTUAL */}
+        <GoalKpiCard className="lg:col-span-12" />
 
-        {/* ROW 8: REKAPAN AKTIVITAS TABEL & EXPORT */}
-        <DashboardCard id="rekapan-aktivitas" className="lg:col-span-12">
-          <ActivityReportTable />
-        </DashboardCard>
+        {/* ROW 8: REKAPAN AKTIVITAS (ALL-TIME ACTIVITY RECORDS & DATA PERSISTENCE) */}
+        <AllTimeActivityLog className="lg:col-span-12" />
       </DashboardGrid>
 
 
