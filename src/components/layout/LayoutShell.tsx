@@ -16,6 +16,7 @@ const navItems = [
             { label: "Aktivitas Terkini", href: "#recent-activity", icon: "ClockIcon" },
             { label: "Status & Pipeline", href: "#project-health", icon: "ActivityIcon" },
             { label: "Rekapan Aktivitas", href: "#all-time-records", icon: "FileSpreadsheet" },
+            { label: "Visitor Log (Admin)", href: "#visitor-tracker", icon: "Eye" },
         ]
     },
 ];

@@ -22,6 +22,7 @@ import ProjectHealthCard from "../components/dashboard/ProjectHealthCard";
 import GoalKpiCard from "../components/dashboard/GoalKpiCard";
 import RecentActivitySection from "../components/dashboard/RecentActivitySection";
 import AllTimeActivityLog from "../components/dashboard/AllTimeActivityLog";
+import VisitorTrackerCard from "../components/dashboard/VisitorTrackerCard";
 // import styles from "./dashboard.module.css";
 
 type Point = { x: string; y: number };
@@ -531,6 +532,9 @@ export default function DashboardPage() {
 
         {/* ROW 8: REKAPAN AKTIVITAS (ALL-TIME ACTIVITY RECORDS & DATA PERSISTENCE) */}
         <AllTimeActivityLog className="lg:col-span-12" />
+
+        {/* ROW 9: VISITOR TRACKER & ADMIN ACCESS */}
+        <VisitorTrackerCard className="lg:col-span-12" />
       </DashboardGrid>
 
 

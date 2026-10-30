@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import Script from "next/script";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
+import { useVisitorLogger } from "@/hooks/useVisitorLogger";
 import "@/styles/globals.css";
 import * as gtag from "@/lib/gtag";
 
@@ -20,6 +21,7 @@ const outfit = Outfit({
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  useVisitorLogger();
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {

@@ -1,14 +1,46 @@
 {
-  "lastUpdated": "2026-10-26T04:28:43.575Z",
-  "totalRecordedDays": 7,
+  "lastUpdated": "2026-10-30T10:02:29.866Z",
+  "totalRecordedDays": 11,
   "logs": [
     {
-      "date": "2026-10-26",
-      "codingSeconds": 1720.896418,
-      "codingTime": "28m",
-      "mainProject": "dev-dashboard",
+      "date": "2026-10-30",
+      "codingSeconds": 254.49,
+      "codingTime": "4m",
+      "mainProject": "GDELT_BigData",
+      "mainLanguage": "Python",
+      "commitsCount": 0
+    },
+    {
+      "date": "2026-10-29",
+      "codingSeconds": 136.985,
+      "codingTime": "2m",
+      "mainProject": "GDELT_BigData",
+      "mainLanguage": "Python",
+      "commitsCount": 0
+    },
+    {
+      "date": "2026-10-28",
+      "codingSeconds": 5048.509,
+      "codingTime": "1h 24m",
+      "mainProject": "GDELT_BigData",
+      "mainLanguage": "Python",
+      "commitsCount": 0
+    },
+    {
+      "date": "2026-10-27",
+      "codingSeconds": 0,
+      "codingTime": "0h 0m",
+      "mainProject": "portfolio-dashboard",
       "mainLanguage": "TypeScript",
       "commitsCount": 0
+    },
+    {
+      "date": "2026-10-26",
+      "codingSeconds": 3139.513,
+      "codingTime": "52m",
+      "mainProject": "dev-dashboard",
+      "mainLanguage": "TypeScript",
+      "commitsCount": 2
     },
     {
       "date": "2026-10-25",
@@ -24,7 +56,7 @@
       "codingTime": "17m",
       "mainProject": "dev-dashboard",
       "mainLanguage": "TypeScript",
-      "commitsCount": 9
+      "commitsCount": 11
     },
     {
       "date": "2026-10-23",
@@ -40,7 +72,7 @@
       "codingTime": "2h 16m",
       "mainProject": "MyPortofolio",
       "mainLanguage": "JavaScript",
-      "commitsCount": 9
+      "commitsCount": 11
     },
     {
       "date": "2026-10-21",
@@ -48,7 +80,7 @@
       "codingTime": "0h 0m",
       "mainProject": "portfolio-dashboard",
       "mainLanguage": "TypeScript",
-      "commitsCount": 9
+      "commitsCount": 11
     },
     {
       "date": "2026-10-20",

@@ -1,0 +1,16 @@
+{
+  "lastUpdated": "2026-10-30T10:01:55.461Z",
+  "totalVisits": 1,
+  "logs": [
+    {
+      "id": "vis-1793354515461-ncasd",
+      "timestamp": "2026-10-30T10:01:55.461Z",
+      "ip": "::1",
+      "device": "Desktop",
+      "os": "Windows",
+      "browser": "Edge",
+      "referrer": "localhost",
+      "path": "/dashboard"
+    }
+  ]
+}
