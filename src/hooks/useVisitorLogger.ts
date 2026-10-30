@@ -4,10 +4,16 @@ export function useVisitorLogger() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Avoid duplicate logging within the same browser session
-    const sessionKey = "logged_visit_session";
-    const alreadyLogged = sessionStorage.getItem(sessionKey);
-    if (alreadyLogged) return;
+    // Cooldown 30 menit per browser agar tidak spam log saat refresh/pindah halaman
+    const STORAGE_KEY = "last_visitor_log_timestamp";
+    const COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
+
+    const lastLogTime = localStorage.getItem(STORAGE_KEY);
+    const now = Date.now();
+
+    if (lastLogTime && now - parseInt(lastLogTime, 10) < COOLDOWN_MS) {
+      return;
+    }
 
     async function logVisit() {
       try {
@@ -21,7 +27,7 @@ export function useVisitorLogger() {
             referrer: document.referrer || "",
           }),
         });
-        sessionStorage.setItem(sessionKey, "true");
+        localStorage.setItem(STORAGE_KEY, Date.now().toString());
       } catch (err) {
         // Silent fail: do not disrupt user experience
       }
@@ -30,4 +36,5 @@ export function useVisitorLogger() {
     logVisit();
   }, []);
 }
+
 

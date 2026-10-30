@@ -204,33 +204,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Write locally
         writeLocalVisitorLogs(updatedData);
 
-        // Commit to GitHub asynchronously/non-blocking
-        const putUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}`;
-        const commitBody: any = {
-          message: "chrono: log new visitor access",
-          content: Buffer.from(JSON.stringify(updatedData, null, 2)).toString("base64"),
-        };
-        if (fileSha) {
-          commitBody.sha = fileSha;
-        }
+        // THROTTLING GITHUB COMMIT:
+        // Jangan commit setiap request. Commit hanya jika:
+        // 1. Commit terakhir sudah lebih dari 15 menit yang lalu, ATAU
+        // 2. Kunjungan baru bertambah minimal 5 kunjungan (batch)
+        const lastCommitTime = currentData.lastUpdated ? new Date(currentData.lastUpdated).getTime() : 0;
+        const timeDiffMinutes = (Date.now() - lastCommitTime) / (1000 * 60);
 
-        // Fire PUT request with 5s timeout
-        await fetchWithTimeout(
-          putUrl,
-          {
-            method: "PUT",
-            headers: {
-              ...ghHeaders,
-              "Content-Type": "application/json",
+        if (timeDiffMinutes >= 15 || (updatedData.totalVisits % 5 === 0)) {
+          const putUrl = `https://api.github.com/repos/${username}/${repo}/contents/${filePath}`;
+          const commitBody: any = {
+            message: `chrono: sync visitor logs (${updatedData.totalVisits} visits)`,
+            content: Buffer.from(JSON.stringify(updatedData, null, 2)).toString("base64"),
+          };
+          if (fileSha) {
+            commitBody.sha = fileSha;
+          }
+
+          // Fire PUT request with 5s timeout
+          await fetchWithTimeout(
+            putUrl,
+            {
+              method: "PUT",
+              headers: {
+                ...ghHeaders,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(commitBody),
             },
-            body: JSON.stringify(commitBody),
-          },
-          5000
-        );
+            5000
+          );
+        }
 
         return res.status(200).json({
           success: true,
-          message: "Visitor logged and synced to GitHub",
+          message: "Visitor logged successfully",
           data: { totalVisits: updatedData.totalVisits, newLog },
         });
       } catch (ghErr) {
