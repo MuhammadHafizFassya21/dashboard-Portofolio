@@ -1,7 +1,17 @@
 {
-  "lastUpdated": "2026-10-30T12:53:31.052Z",
-  "totalVisits": 89,
+  "lastUpdated": "2026-10-30T12:54:03.201Z",
+  "totalVisits": 90,
   "logs": [
+    {
+      "id": "vis-1793364843202-huapy",
+      "timestamp": "2026-10-30T12:54:03.201Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-1yvx4613z.vercel.app",
+      "path": "/dashboard"
+    },
     {
       "id": "vis-1793364811052-n0j3e",
       "timestamp": "2026-10-30T12:53:31.052Z",
