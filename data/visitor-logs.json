@@ -1,7 +1,17 @@
 {
-  "lastUpdated": "2026-10-30T12:54:03.201Z",
-  "totalVisits": 90,
+  "lastUpdated": "2026-10-30T14:13:34.354Z",
+  "totalVisits": 91,
   "logs": [
+    {
+      "id": "vis-1793369614356-j5c2e",
+      "timestamp": "2026-10-30T14:13:34.354Z",
+      "ip": "103.120.170.121",
+      "device": "Mobile",
+      "os": "iOS",
+      "browser": "Safari",
+      "referrer": "Instagram",
+      "path": "/dashboard"
+    },
     {
       "id": "vis-1793364843202-huapy",
       "timestamp": "2026-10-30T12:54:03.201Z",
