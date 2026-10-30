@@ -1,7 +1,157 @@
 {
-  "lastUpdated": "2026-10-30T12:45:20.454Z",
-  "totalVisits": 72,
+  "lastUpdated": "2026-10-30T12:52:55.992Z",
+  "totalVisits": 87,
   "logs": [
+    {
+      "id": "vis-1793364775993-2nyak",
+      "timestamp": "2026-10-30T12:52:55.992Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-g48s2v3v2.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364741717-pljti",
+      "timestamp": "2026-10-30T12:52:21.716Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-r24wmgz5w.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364703454-agygo",
+      "timestamp": "2026-10-30T12:51:43.453Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-fuo7ox3yw.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364669118-21det",
+      "timestamp": "2026-10-30T12:51:09.117Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-qto9b2bvg.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364635400-odh1a",
+      "timestamp": "2026-10-30T12:50:35.400Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-9m2hrfj5y.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364596054-jp1cj",
+      "timestamp": "2026-10-30T12:49:56.053Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-f9mxbasei.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364561383-a6mim",
+      "timestamp": "2026-10-30T12:49:21.382Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-p50lmm5ia.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364527852-9gxgu",
+      "timestamp": "2026-10-30T12:48:47.851Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-5jyez2r76.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364493401-q4h51",
+      "timestamp": "2026-10-30T12:48:13.401Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-9sxbmb5ym.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364491517-wvtac",
+      "timestamp": "2026-10-30T12:48:11.516Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-9sxbmb5ym.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364460242-alyz6",
+      "timestamp": "2026-10-30T12:47:40.241Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-lj4mtziqs.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364424748-zt82f",
+      "timestamp": "2026-10-30T12:47:04.747Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-dvtjr30n7.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364391721-czzf8",
+      "timestamp": "2026-10-30T12:46:31.720Z",
+      "ip": "54.183.149.156",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-dbs4q31bw.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364359185-6oi4t",
+      "timestamp": "2026-10-30T12:45:59.185Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-qjufk582t.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "id": "vis-1793364357475-fmmas",
+      "timestamp": "2026-10-30T12:45:57.474Z",
+      "ip": "13.57.148.235",
+      "device": "Desktop",
+      "os": "Linux",
+      "browser": "Chrome",
+      "referrer": "dashboard-portofolio-qjufk582t.vercel.app",
+      "path": "/dashboard"
+    },
     {
       "id": "vis-1793364320454-zs18j",
       "timestamp": "2026-10-30T12:45:20.454Z",
