@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const DEFAULT_PIN = "210306";
+const DEFAULT_PIN = "Hafiz2006!";
 
 function getSecret(): string {
   return process.env.ADMIN_PIN || DEFAULT_PIN;

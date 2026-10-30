@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { pin } = req.body || {};
-    const validPin = process.env.ADMIN_PIN || "210306";
+    const validPin = process.env.ADMIN_PIN || "Hafiz2006!";
 
     if (!pin || String(pin).trim() !== String(validPin).trim()) {
       return res.status(401).json({

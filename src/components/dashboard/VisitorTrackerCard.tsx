@@ -11,6 +11,8 @@ import {
   Clock,
   Eye,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { VisitorLogsData, VisitorLogEntry } from "../../pages/api/log-visitor";
 
@@ -29,6 +31,10 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
     logs: [],
   });
   const [fetchingData, setFetchingData] = useState(false);
+
+  // Pagination / Slide state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   // 1. Check session status on mount
   async function checkAuth() {
@@ -112,6 +118,11 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
   const desktopVisits = data.logs.filter((l) => l.device === "Desktop").length;
   const tabletVisits = data.logs.filter((l) => l.device === "Tablet").length;
 
+  // Pagination calculations
+  const totalPages = Math.ceil(data.logs.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentLogs = data.logs.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <section
       id="visitor-tracker"
@@ -142,7 +153,10 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
         {isAuthenticated && (
           <div className="flex items-center gap-2 self-start sm:self-center">
             <button
-              onClick={loadVisitorLogs}
+              onClick={() => {
+                setCurrentPage(1);
+                loadVisitorLogs();
+              }}
               disabled={fetchingData}
               title="Refresh log"
               className="p-2 rounded-xl bg-zinc-950/80 hover:bg-white/5 border border-white/5 text-zinc-400 hover:text-white transition-colors cursor-pointer disabled:opacity-40"
@@ -168,17 +182,17 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
           </div>
           <h4 className="text-base font-bold text-white mb-1">Akses Khusus Admin</h4>
           <p className="text-xs text-zinc-400 mb-6">
-            Masukkan PIN keamanan 6-digit untuk membuka data statistik dan log aktivitas pengunjung.
+            Masukkan PIN keamanan admin untuk membuka data statistik dan log aktivitas pengunjung.
           </p>
 
           <form onSubmit={handleLogin} className="w-full flex flex-col gap-3">
             <div className="relative">
               <input
                 type="password"
-                maxLength={6}
+                maxLength={32}
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                placeholder="Masukkan 6-digit PIN..."
+                placeholder="Masukkan PIN Admin..."
                 className="w-full px-4 py-2.5 bg-zinc-900 border border-white/10 rounded-xl text-center text-sm tracking-widest font-mono text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
                 autoFocus
               />
@@ -268,67 +282,132 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
               Belum ada log pengunjung yang tercatat.
             </div>
           ) : (
-            <div className="w-full overflow-x-auto rounded-xl border border-white/5 bg-zinc-950/50">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-white/5 bg-white/[0.02] text-zinc-400 uppercase tracking-wider text-[10px] font-bold">
-                    <th className="py-3 px-4">Waktu</th>
-                    <th className="py-3 px-4">Alamat IP</th>
-                    <th className="py-3 px-4">Perangkat & OS</th>
-                    <th className="py-3 px-4">Browser</th>
-                    <th className="py-3 px-4">Sumber Referrer</th>
-                    <th className="py-3 px-4">Halaman</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {data.logs.slice(0, 30).map((log: VisitorLogEntry) => {
-                    const timeFormatted = new Date(log.timestamp).toLocaleString("id-ID", {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    });
+            <div className="flex flex-col gap-3">
+              <div className="w-full overflow-x-auto rounded-xl border border-white/5 bg-zinc-950/50">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-white/[0.02] text-zinc-400 uppercase tracking-wider text-[10px] font-bold">
+                      <th className="py-3 px-4">Waktu</th>
+                      <th className="py-3 px-4">Alamat IP</th>
+                      <th className="py-3 px-4">Perangkat & OS</th>
+                      <th className="py-3 px-4">Browser</th>
+                      <th className="py-3 px-4">Sumber Referrer</th>
+                      <th className="py-3 px-4">Halaman</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {currentLogs.map((log: VisitorLogEntry) => {
+                      const timeFormatted = new Date(log.timestamp).toLocaleString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
 
-                    return (
-                      <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3 px-4 font-mono text-zinc-300 whitespace-nowrap">
-                          {timeFormatted}
-                        </td>
-                        <td className="py-3 px-4 font-mono text-zinc-400 whitespace-nowrap">
-                          <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[11px]">
-                            {log.ip}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <div className="flex items-center gap-1.5">
-                            {log.device === "Mobile" ? (
-                              <Smartphone className="w-3.5 h-3.5 text-blue-400" />
-                            ) : log.device === "Tablet" ? (
-                              <Tablet className="w-3.5 h-3.5 text-amber-400" />
-                            ) : (
-                              <Monitor className="w-3.5 h-3.5 text-emerald-400" />
-                            )}
-                            <span className="font-medium text-zinc-200">
-                              {log.device} ({log.os})
+                      return (
+                        <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="py-3 px-4 font-mono text-zinc-300 whitespace-nowrap">
+                            {timeFormatted}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-zinc-400 whitespace-nowrap">
+                            <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[11px]">
+                              {log.ip}
                             </span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-zinc-300 font-medium whitespace-nowrap">
-                          {log.browser}
-                        </td>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                            {log.referrer}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 font-mono text-zinc-400 whitespace-nowrap">
-                          {log.path}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              {log.device === "Mobile" ? (
+                                <Smartphone className="w-3.5 h-3.5 text-blue-400" />
+                              ) : log.device === "Tablet" ? (
+                                <Tablet className="w-3.5 h-3.5 text-amber-400" />
+                              ) : (
+                                <Monitor className="w-3.5 h-3.5 text-emerald-400" />
+                              )}
+                              <span className="font-medium text-zinc-200">
+                                {log.device} ({log.os})
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-zinc-300 font-medium whitespace-nowrap">
+                            {log.browser}
+                          </td>
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                              {log.referrer}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-zinc-400 whitespace-nowrap">
+                            {log.path}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Slider / Pagination Navigation Bar */}
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-2 text-xs text-zinc-400">
+                  <div className="flex items-center gap-1.5 text-[11px]">
+                    <span>Menampilkan baris</span>
+                    <strong className="text-zinc-200 font-mono">
+                      {startIndex + 1} - {Math.min(startIndex + itemsPerPage, data.logs.length)}
+                    </strong>
+                    <span>dari</span>
+                    <strong className="text-zinc-200 font-mono">{data.logs.length}</strong>
+                    <span>total log</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono text-zinc-500 mr-1">
+                      Slide {currentPage} / {totalPages}
+                    </span>
+
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="p-1.5 rounded-xl bg-zinc-950/80 hover:bg-white/10 border border-white/5 text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center cursor-pointer"
+                      title="Slide sebelumnya"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {/* Slide Indicator Dots (max 5 dots preview) */}
+                    <div className="flex items-center gap-1 px-1">
+                      {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
+                        let pageNum = idx + 1;
+                        if (totalPages > 5 && currentPage > 3) {
+                          pageNum = Math.min(currentPage - 2 + idx, totalPages - (4 - idx));
+                        }
+                        const isActive = pageNum === currentPage;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`w-6 h-6 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                              isActive
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm"
+                                : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-1.5 rounded-xl bg-zinc-950/80 hover:bg-white/10 border border-white/5 text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center cursor-pointer"
+                      title="Slide berikutnya"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -336,4 +415,3 @@ export default function VisitorTrackerCard({ className = "" }: VisitorTrackerCar
     </section>
   );
 }
-
