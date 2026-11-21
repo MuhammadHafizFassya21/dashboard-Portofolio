@@ -1,7 +1,17 @@
 {
-  "lastUpdated": "2026-11-21T17:51:07.188Z",
-  "totalVisits": 103,
+  "lastUpdated": "2026-11-21T18:48:55.084Z",
+  "totalVisits": 104,
   "logs": [
+    {
+      "id": "vis-1795286935084-60vcy",
+      "timestamp": "2026-11-21T18:48:55.084Z",
+      "ip": "103.184.66.153",
+      "device": "Desktop",
+      "os": "Windows",
+      "browser": "Edge",
+      "referrer": "dashboard-portofolio-ten.vercel.app",
+      "path": "/dashboard"
+    },
     {
       "id": "vis-1795283467189-k4blk",
       "timestamp": "2026-11-21T17:51:07.188Z",
